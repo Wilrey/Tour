@@ -1,700 +1,633 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Guia Toledo y Segovia · audio, Maps y modo podcast</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toledo y Segovia · guía con audio</title>
+  <meta name="description" content="Guía narrativa de Toledo y Segovia con Google Maps, fuentes oficiales y audio único por parada.">
   <style>
     :root {
-      --text:#eef2ff; --muted:#b6c0e4; --accent:#7dd3fc; --accent2:#c084fc; --line:rgba(255,255,255,.10); --chip:rgba(125,211,252,.12); --warn:#fde68a; --ok:#93c5fd;
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --panel: rgba(15, 23, 42, 0.78);
+      --card: rgba(15, 23, 42, 0.92);
+      --line: rgba(255,255,255,0.11);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-soft: rgba(245, 158, 11, 0.16);
+      --accent-2: #38bdf8;
+      --ok: #10b981;
+      --warn: #fbbf24;
+      --danger: #fb7185;
+      --shadow: 0 14px 40px rgba(0,0,0,0.28);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --maxw: 1180px;
     }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:radial-gradient(circle at top,#172554 0,#0b1020 42%,#070b16 100%); color:var(--text); }
-    a { color:inherit; }
-    header { padding:28px 20px 14px; }
-    .wrap { max-width:1180px; margin:0 auto; padding:0 16px 36px; }
-    .hero { background:linear-gradient(135deg,rgba(125,211,252,.14),rgba(192,132,252,.12)); border:1px solid var(--line); border-radius:22px; padding:22px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
-    h1 { margin:0 0 8px; font-size:clamp(28px,5vw,44px); line-height:1.06; }
-    .sub { margin:0; color:var(--muted); font-size:16px; line-height:1.5; max-width:900px; }
-    .topgrid { display:grid; grid-template-columns:1.6fr 1fr; gap:16px; margin-top:16px; }
-    .panel { background:rgba(18,25,51,.86); border:1px solid var(--line); border-radius:18px; padding:16px; }
-    .panel h2,.panel h3 { margin:0 0 10px; font-size:18px; }
-    .panel p { margin:0 0 10px; color:var(--muted); line-height:1.55; }
-    .controls { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
-    .controls label { font-size:14px; color:var(--muted); }
-    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin:20px 0 16px; }
-    button,.btn { appearance:none; border:0; border-radius:999px; padding:11px 14px; font-size:14px; font-weight:650; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
-    button:hover,.btn:hover { transform:translateY(-1px); }
-    .btn-solid { background:linear-gradient(135deg,var(--accent),#60a5fa); color:#09111f; box-shadow:0 10px 24px rgba(96,165,250,.22); }
-    .btn-dark { background:rgba(255,255,255,.08); color:var(--text); border:1px solid var(--line); }
-    .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
-    .tab-btn { background:rgba(255,255,255,.06); color:var(--muted); border:1px solid var(--line); }
-    .tab-btn.active { background:linear-gradient(135deg,rgba(125,211,252,.2),rgba(192,132,252,.16)); color:var(--text); }
-    .day { display:none; }
-    .day.active { display:block; }
-    .dayhead { display:grid; grid-template-columns:1.45fr .95fr; gap:16px; margin-bottom:14px; }
-    .dayhead .title { font-size:26px; margin:0 0 8px; }
-    .route-actions { display:flex; flex-wrap:wrap; gap:10px; }
-    .cards { display:grid; gap:16px; }
-    .card { background:linear-gradient(180deg,rgba(18,25,51,.96),rgba(14,20,40,.96)); border:1px solid var(--line); border-radius:22px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.20); }
-    .card.current { outline:2px solid rgba(125,211,252,.65); box-shadow:0 0 0 6px rgba(125,211,252,.12); }
-    .card-top { padding:18px 18px 10px; }
-    .meta { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px; }
-    .pill { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700; background:var(--chip); color:var(--accent); border:1px solid rgba(125,211,252,.20); }
-    .card h3 { margin:0 0 8px; font-size:clamp(21px,3vw,28px); }
-    .facts { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:0 18px 14px; }
-    .fact { background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:16px; padding:12px; min-height:88px; }
-    .fact strong { display:block; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--accent2); margin-bottom:6px; }
-    .fact span { color:var(--text); line-height:1.5; font-size:14px; }
-    .story-wrap { padding:0 18px 16px; }
-    .story-label { color:var(--warn); font-size:12px; text-transform:uppercase; letter-spacing:.06em; font-weight:800; }
-    .story { margin:8px 0 0; color:var(--text); line-height:1.75; font-size:16px; }
-    .actions,.sources { display:flex; flex-wrap:wrap; gap:10px; padding:0 18px 18px; }
-    details { border-top:1px solid var(--line); padding:14px 18px 18px; }
-    summary { cursor:pointer; font-weight:700; color:var(--accent); }
-    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap; font-size:13px; line-height:1.55; color:var(--muted); background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:14px; padding:12px; margin-top:10px; }
-    .footer { margin-top:20px; display:grid; gap:16px; }
-    .footer small { color:var(--muted); line-height:1.6; }
-    .status { color:var(--ok); font-size:14px; min-height:20px; }
-    input[type=range] { width:180px; }
-    select { padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--text); }
-    .tools-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
-    .mini { font-size:13px; color:var(--muted); }
-    @media (max-width:980px) { .topgrid,.dayhead,.tools-grid { grid-template-columns:1fr; } }
-    @media (max-width:700px) { .facts { grid-template-columns:1fr; } .story { font-size:15px; } }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 26%),
+        radial-gradient(circle at top right, rgba(245, 158, 11, 0.14), transparent 22%),
+        linear-gradient(180deg, #020617 0%, var(--bg) 55%, #111827 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: inherit; }
+    .shell { width: min(var(--maxw), calc(100% - 28px)); margin: 0 auto; }
+
+    .hero { padding: 34px 0 18px; }
+    .hero-box {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.74));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-box::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -45% auto;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.18), transparent 62%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.10);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: #cbd5e1;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    h1 { margin: 14px 0 10px; font-size: clamp(32px, 5vw, 56px); line-height: 1.05; }
+    .hero p { margin: 0; color: #cbd5e1; max-width: 760px; font-size: 18px; }
+
+    .jump-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      background: rgba(2, 6, 23, 0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .jump-wrap {
+      width: min(var(--maxw), calc(100% - 28px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .jump-wrap::-webkit-scrollbar { display: none; }
+    .jump {
+      white-space: nowrap;
+      text-decoration: none;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .jump:hover { background: rgba(255,255,255,0.08); }
+
+    .city { padding: 28px 0 12px; }
+    .city-header {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+    .city-panel {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.66));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .city-kicker { color: var(--accent); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 12px; }
+    .city-title { margin: 8px 0 6px; font-size: clamp(28px, 4vw, 40px); line-height: 1.08; }
+    .city-subtitle { margin: 0 0 12px; color: #fde68a; font-weight: 600; }
+    .city-intro { margin: 0; color: #dbe4f0; }
+    .city-summary {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+    .summary-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+    }
+    .summary-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    .summary-text { margin: 0; color: #dbe4f0; }
+
+    .stops { display: grid; gap: 16px; }
+    .card {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.86));
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .stop-index { color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .stop-title { margin: 0; font-size: clamp(22px, 3vw, 30px); line-height: 1.1; }
+    .stop-status {
+      white-space: nowrap;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #dbeafe;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .stop-status.loaded { background: rgba(16,185,129,0.16); color: #d1fae5; border-color: rgba(16,185,129,0.28); }
+    .stop-status.empty { background: rgba(251,191,36,0.14); color: #fde68a; border-color: rgba(251,191,36,0.28); }
+
+    .audio-box {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    audio { width: 100%; }
+    .audio-placeholder {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,255,255,0.14);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .admin-inline { display: none; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .admin-visible .admin-inline { display: flex; }
+    .file-button, .ghost-button, .primary-button, .mini-button, .source-link, .map-link, .copy-button {
+      appearance: none;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, opacity 140ms ease;
+    }
+    .file-button:hover, .ghost-button:hover, .primary-button:hover, .mini-button:hover, .source-link:hover, .map-link:hover, .copy-button:hover { transform: translateY(-1px); }
+    .primary-button { background: linear-gradient(180deg, #f59e0b, #d97706); color: #111827; font-weight: 800; }
+    .ghost-button { background: rgba(255,255,255,0.04); border-color: var(--line); }
+    .mini-button { background: rgba(255,255,255,0.04); border-color: var(--line); padding: 8px 12px; font-size: 14px; }
+    .map-link { background: rgba(56,189,248,0.14); border-color: rgba(56,189,248,0.28); color: #dbeafe; font-weight: 700; }
+    .source-link { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.28); color: #fef3c7; font-weight: 700; }
+    .copy-button { background: rgba(255,255,255,0.04); border-color: var(--line); font-weight: 700; }
+    .copy-button.done { background: rgba(16,185,129,0.16); border-color: rgba(16,185,129,0.28); color: #d1fae5; }
+    .file-button { background: rgba(255,255,255,0.04); border-color: var(--line); font-weight: 700; position: relative; overflow: hidden; }
+    .file-button input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .file-name { color: var(--muted); font-size: 14px; }
+
+    .link-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .fact {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .fact-label { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    .fact-text { margin: 0; color: #e5eefb; }
+
+    .story p { margin: 0 0 12px; color: #dbe4f0; font-size: 17px; }
+    .story p:last-child { margin-bottom: 0; }
+
+    .footer-space { height: 56px; }
+
+    .toolbar {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 50;
+      display: none;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 12px;
+      max-width: min(100vw - 24px, 720px);
+      background: rgba(2, 6, 23, 0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.42);
+      backdrop-filter: blur(14px);
+    }
+    .admin-visible .toolbar { display: flex; }
+    .toolbar-title { font-weight: 800; margin-right: 4px; }
+    .toolbar-count { color: var(--muted); font-size: 14px; margin-right: 8px; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 920px) {
+      .city-header { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .hero-box { padding: 22px; }
+      .facts { grid-template-columns: 1fr; }
+      .card { padding: 16px; }
+      .card-head { flex-direction: column; align-items: flex-start; }
+      .stop-status { align-self: flex-start; }
+      .story p { font-size: 16px; }
+      .toolbar { left: 12px; right: 12px; bottom: 12px; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <div class="hero">
-        <h1>Toledo y Segovia para oyentes de 13–15 anos</h1>
-        <p class="sub">Version mejorada con relato mas intenso, enlaces de Google Maps en cada parada, botones a fuentes oficiales y un modo podcast a dos voces. El archivo funciona solo: reproduce la voz del navegador o del movil. Para un acabado todavia mas pro, al final tienes prompts listos para NotebookLM y ElevenLabs.</p>
-        <div class="topgrid">
-          <section class="panel">
-            <h2>Como usarlo</h2>
-            <p>Abre el archivo en el movil. Pulsa <strong>Escuchar</strong> para la guia normal o <strong>Podcast</strong> si quieres un tono mas conversacional. Los enlaces <strong>Maps</strong> abren cada parada directamente en Google Maps. Los botones <strong>Fuente oficial</strong> llevan al monumento o al portal turistico oficial usado para preparar el contenido.</p>
-            <div class="controls">
-              <label for="rate"><strong>Velocidad</strong></label>
-              <input id="rate" type="range" min="0.85" max="1.15" step="0.05" value="1.00" />
-              <span id="rateValue">1.00x</span>
-              <button class="btn-dark" onclick="stopSpeech()">Detener</button>
-            </div>
-            <div class="controls" style="margin-top:12px">
-              <label for="voiceA">Voz A</label>
-              <select id="voiceA"></select>
-              <label for="voiceB">Voz B</label>
-              <select id="voiceB"></select>
-            </div>
-            <p class="mini" style="margin-top:10px">Consejo: si tu movil tiene varias voces espanolas, el modo podcast suena mejor usando dos distintas. Si solo aparece una, el archivo seguira funcionando.</p>
-          </section>
-          <section class="panel">
-            <h2>Lo que cambia en esta version</h2>
-            <p>Ahora cada parada tiene cuatro capas: quien estuvo o impulso el lugar, por que importa, una curiosidad memorable y un pequeno reto visual para enganchar a los chicos. El relato esta escrito para sonar mas cinematografico sin inventarse hechos.</p>
-            <div class="controls">
-              <button class="btn-solid" onclick="copyText(notebooklmPrompt)">Copiar prompt · NotebookLM</button>
-              <button class="btn-dark" onclick="copyText(elevenlabsPrompt)">Copiar prompt · ElevenLabs</button>
-            </div>
-            <div id="copyStatus" class="status" aria-live="polite"></div>
-          </section>
-        </div>
+  <script id="content-data" type="application/json">{"cities": [{"id": "toledo", "day": "Día 1", "title": "Toledo", "subtitle": "Panorámicas, capas de civilizaciones y un final en el monumento más antiguo en pie de la ciudad.", "intro": "Toledo no se visita: se descifra. En unas horas pasas del gran balcón sobre el Tajo al poder del Alcázar, del gótico de la Catedral a una iglesia con leyenda, a una sinagoga convertida en iglesia y a una mezquita transformada en templo cristiano. Es una ciudad hecha de capas, y ese es justamente su truco."}, {"id": "segovia", "day": "Día 2", "title": "Segovia", "subtitle": "Castillo de cuento, catedral nacida tras una crisis y un final romano que todavía intimida.", "intro": "Segovia entra por los ojos muy rápido, pero se entiende mejor si la lees como una mezcla rara de cuento, guerra, religión e ingeniería. Empiezas con la gran foto del Alcázar, sigues por un palacio que fue residencia de reyes, prisión y colegio militar, atraviesas románico puro y terminas debajo de una obra romana que siguió llevando agua durante siglos."}], "stops": [{"id": "toledo-mirador-del-valle", "city": "toledo", "order": 1, "title": "Mirador del Valle", "maps": "https://www.google.com/maps/search/?api=1&query=Mirador+del+Valle+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.turismocastillalamancha.es/es/naturaleza/monumentos-naturales/mirador-del-valle-de-toledo"}], "who": "No es una residencia histórica concreta: es el balcón desde el que se entiende por qué Toledo fue casi inexpugnable.", "why": "La vista reúne de un golpe el meandro del Tajo, la roca, la muralla, el Alcázar y la Catedral.", "curiosity": "Aquí la ciudad deja de ser una suma de monumentos y se convierte en una silueta estratégica completa.", "challenge": "Reto rápido: localiza primero el Alcázar y luego la Catedral sin acercarte al móvil.", "story": ["Detente un segundo antes de entrar en la ciudad. Lo que tienes delante no es una simple foto bonita: es un manual de supervivencia medieval. El Tajo abraza la roca, la muralla aprieta el casco y, por encima de todo, sobresalen el Alcázar y la Catedral como si compitieran por mandar sobre el perfil.", "Toledo no nació para ser cómoda; nació para durar. Desde aquí se entiende por qué fue tan codiciada: quien dominaba esta altura dominaba prestigio, defensa y control del territorio. Primero ves la ciudad desde fuera. Luego entrarás en ella y descubrirás que detrás de esa imagen compacta hay siglos enteros peleándose y mezclándose al mismo tiempo."], "audioScript": "Antes de entrar en Toledo, detente un segundo. Lo que tienes delante no es una simple postal. Es un manual de supervivencia medieval hecho paisaje. El Tajo abraza la roca, la muralla aprieta el casco y, por encima de todo, el Alcázar y la Catedral lanzan el mismo mensaje al horizonte: aquí se venía a mandar. Toledo no nació para ser cómoda. Nació para durar. Y desde este balcón se entiende por qué fue tan codiciada. Quien controlaba esta altura controlaba prestigio, defensa y territorio. Por eso esta vista importa tanto: primero ves la ciudad como una silueta compacta; luego entrarás en ella y descubrirás que detrás de esa forma casi perfecta hay siglos enteros de guerra, fe y poder amontonados en la misma roca."}, {"id": "toledo-alcazar", "city": "toledo", "order": 2, "title": "Alcázar de Toledo", "maps": "https://www.google.com/maps/search/?api=1&query=Alcazar+de+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/museos/toledo/alcazar-de-toledo-%28museo-del-ejercito%29"}], "who": "El emplazamiento se utilizó desde época romana y en el Renacimiento se convirtió en residencia real bajo Carlos V y Felipe II.", "why": "Ocupa la colina más alta y resume la historia del poder en Toledo.", "curiosity": "Ha sido destruido, rehecho y reutilizado varias veces, pero nunca dejó de dominar el perfil de la ciudad.", "challenge": "Mira sus cuatro torres de esquina: el edificio quiere parecer equilibrado, frío y dominante. Lo consigue.", "story": ["Aquí el mensaje importa incluso antes de cruzar la puerta. El Alcázar está plantado en la parte más alta de Toledo y su función ha sido siempre la misma: recordarle a la ciudad dónde vive el poder. El lugar ya era estratégico en época romana, pero su forma actual cuaja en el Renacimiento, cuando Carlos V y Felipe II lo usan como residencia real.", "Fíjate en la sensación que provoca: líneas severas, planta cuadrada, cuatro torres y ni una concesión a la blandura. El edificio parece decir: aquí no se viene a improvisar. Ha sido destruido, rehecho y reprogramado varias veces, y aun así sigue imponiéndose sobre el skyline de Toledo. Como si cada siglo hubiera querido dejar su firma y el edificio hubiera respondido: perfecto, pero el mando sigue aquí arriba."], "audioScript": "Aquí el poder no espera a que entres. Ya te está mirando desde arriba. El Alcázar se levanta en el punto más alto de Toledo y lleva siglos haciendo exactamente lo mismo: recordar a toda la ciudad dónde está el mando. El lugar ya era estratégico en época romana, pero su gran forma actual se consolida en el Renacimiento, cuando Carlos V y Felipe II lo convierten en residencia real. Mira bien la arquitectura: planta cuadrada, líneas severas, cuatro torres y ni una sola concesión a lo blando. Todo está calculado para impresionar. Lo fascinante es que no ves un edificio congelado. Ves un edificio que ha sido destruido, rehecho y reutilizado varias veces, y que aun así sigue dominando Toledo como si todos los siglos le hubieran obedecido."}, {"id": "toledo-catedral-primada", "city": "toledo", "order": 3, "title": "Catedral Primada", "maps": "https://www.google.com/maps/search/?api=1&query=Catedral+Primada+de+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.catedralprimada.es/la-catedral/historia/"}], "who": "La obra comenzó en 1226 por impulso de Fernando III y del arzobispo Rodrigo Jiménez de Rada.", "why": "Es una de las grandes catedrales góticas de Europa y la sede primada de España.", "curiosity": "Se alza sobre la antigua basílica visigoda y la mezquita mayor. Su construcción duró más de dos siglos.", "challenge": "Piensa en esto mientras entras: varias religiones consideraron sagrado este mismo solar.", "story": ["Bienvenido al nivel jefe de Toledo. La Catedral no solo es enorme; también es una declaración de intenciones. Aquí hubo antes una basílica visigoda y después la mezquita mayor. Luego, en 1226, Fernando III y Jiménez de Rada pusieron en marcha un templo gótico que tardó más de doscientos años en completarse.", "Eso significa que no fue obra de una sola generación brillante, sino de muchas generaciones empeñadas en dejar algo inmenso. La Catedral es fe, sí, pero también prestigio, jerarquía, memoria y arte acumulado. Sus naves, las vidrieras, la Custodia de Arfe o el Greco no son piezas sueltas: son un mensaje. Aquí Toledo no susurra. Aquí Toledo habla a lo grande."], "audioScript": "Bienvenido al nivel jefe de Toledo. La Catedral no solo es enorme; es una declaración de intenciones. En este mismo solar hubo antes una basílica visigoda y después la mezquita mayor. Luego, en 1226, Fernando III y el arzobispo Jiménez de Rada pusieron en marcha un templo gótico que tardó más de doscientos años en completarse. Eso cambia la manera de mirarlo: no es la obra de un solo genio, sino de muchas generaciones decididas a dejar algo gigantesco. La Catedral importa por lo que ves y por lo que representa. Es fe, claro, pero también jerarquía, prestigio, memoria y arte acumulado. Sus naves, sus vidrieras, la Custodia de Arfe o el Greco no son piezas aisladas. Son parte del mismo mensaje: aquí Toledo no susurra. Aquí Toledo habla a lo grande."}, {"id": "toledo-santo-tome", "city": "toledo", "order": 4, "title": "Iglesia de Santo Tomé", "maps": "https://www.google.com/maps/search/?api=1&query=Iglesia+de+Santo+Tome+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/iglesias/toledo/iglesia-de-santo-tome-%28el-entierro-del-senor-de-orgaz%29"}], "who": "La parroquia se fundó tras la reconquista de 1085; a comienzos del siglo XIV se reconstruyó a expensas de Gonzalo Ruiz de Toledo, señor de Orgaz.", "why": "Une arquitectura mudéjar, leyenda medieval y una de las obras maestras de El Greco.", "curiosity": "La torre responde al esquema de un alminar y el espacio del cuadro de El Greco se musealizó en el siglo XX.", "challenge": "Cuando veas el cuadro, busca la mezcla: historia local, milagro y propaganda de memoria.", "story": ["Santo Tomé parece una iglesia pequeña, pero dentro guarda una explosión narrativa. La parroquia nace tras la reconquista cristiana y queda documentada en 1142. Más tarde se reconstruye gracias a Gonzalo Ruiz de Toledo, señor de Orgaz, que quiso ser enterrado aquí.", "Y entonces llega el giro de guion: la tradición contó que, cuando murió en 1327, san Agustín y san Esteban bajaron del cielo para colocar su cuerpo en el sepulcro como premio a su caridad. Siglos después, El Greco convirtió esa leyenda en una imagen inmortal. Así que esta parada no va solo de mirar una iglesia. Va de ver cómo una ciudad fabrica memoria y la vuelve casi intocable."], "audioScript": "Santo Tomé parece una iglesia pequeña. Error. Dentro guarda una de las historias más potentes de Toledo. La parroquia nace tras la reconquista y queda documentada en 1142. Más tarde se reconstruye gracias a Gonzalo Ruiz de Toledo, señor de Orgaz, que además quiso ser enterrado aquí. Y entonces llega el giro de guion. La tradición contó que, cuando murió en 1327, san Agustín y san Esteban bajaron del cielo para colocar su cuerpo en la tumba como premio a su caridad. Siglos después, El Greco convirtió esa leyenda en una obra inmortal: El entierro del Señor de Orgaz. De repente, este lugar deja de ser solo una iglesia. Se convierte en arquitectura mudéjar, leyenda medieval y gran pintura europea concentradas en el mismo punto."}, {"id": "toledo-santa-maria-la-blanca", "city": "toledo", "order": 5, "title": "Sinagoga de Santa María la Blanca", "maps": "https://www.google.com/maps/search/?api=1&query=Sinagoga+de+Santa+Maria+la+Blanca+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/toledo/sinagoga-de-santa-maria-la-blanca"}], "who": "Se construyó hacia 1180 como sinagoga para una comunidad judía en expansión. La fuente oficial no identifica un arquitecto individual.", "why": "Es uno de los espacios más potentes para explicar el Toledo sefardí y el cruce entre arte almohade, mudéjar y memoria judía.", "curiosity": "En 1391 fue expropiada y transformada en iglesia. Tiene cinco naves y 32 capiteles diferentes.", "challenge": "Mira el interior como si fuera un bosque blanco: columnas, ritmo y silencio.", "story": ["Aquí llega uno de los grandes giros de Toledo. Santa María la Blanca no nació como iglesia: nació como sinagoga, hacia 1180, para una comunidad judía que estaba creciendo. Después, en 1391, fue expropiada y convertida en iglesia cristiana. Ese cambio no es una nota al pie; es la historia del edificio.", "Lo increíble es que, a pesar de la transformación, el interior sigue teniendo una fuerza visual brutal: cinco naves, arcos de herradura, yeserías de inspiración almohade y un bosque de soportes que hace que el espacio parezca infinito. Aquí Toledo deja de ser una teoría sobre convivencia y conflicto, y se vuelve algo que puedes ver."], "audioScript": "Aquí Toledo deja de ser una teoría y se vuelve piedra. Santa María la Blanca no nació como iglesia. Nació como sinagoga, hacia 1180, para una comunidad judía en crecimiento. Después, en 1391, fue expropiada y convertida en iglesia cristiana. Y lo más fuerte es que el edificio todavía recuerda las dos cosas a la vez. Mira alrededor: cinco naves, arcos de herradura, yeserías de inspiración almohade y un bosque blanco de columnas que parece no terminar nunca. Esa mezcla no es decorativa; es histórica. Una religión rezó aquí, otra heredó el espacio, y la arquitectura se quedó guardando memoria de ambas. Si alguien te pregunta por qué este lugar importa, la respuesta es sencilla: porque aquí Toledo se puede entender con los ojos."}, {"id": "toledo-san-juan-de-los-reyes", "city": "toledo", "order": 6, "title": "Monasterio de San Juan de los Reyes", "maps": "https://www.google.com/maps/search/?api=1&query=Monasterio+de+San+Juan+de+los+Reyes+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/toledo/monasterio-de-san-juan-de-los-reyes"}, {"label": "Monumento", "url": "https://www.sanjuandelosreyes.org/monumento/"}], "who": "Fue mandado construir por los Reyes Católicos en 1476. La obra comenzó hacia 1477 y el arquitecto principal fue Juan Guas.", "why": "Es una pieza clave del gótico hispano-flamenco y un monumento pensado para proyectar poder, victoria y devoción.", "curiosity": "Las cadenas de la fachada recuerdan a cautivos cristianos rescatados en Málaga y Almería y trasladados como exvotos.", "challenge": "No lo mires solo como monasterio: míralo como un mensaje político tallado en piedra.", "story": ["San Juan de los Reyes es la prueba de que un edificio puede rezar y hacer propaganda al mismo tiempo. Los Reyes Católicos ordenaron su construcción en 1476 y la obra arrancó poco después bajo la dirección de Juan Guas. El resultado no es un monasterio discreto, sino un monumento con mensaje.", "Todo aquí empuja en la misma dirección: grandeza, legitimidad, victoria y memoria. Y luego está el detalle que lo cambia todo: las cadenas que cuelgan en el exterior. No son decoración cualquiera; están asociadas a cautivos cristianos liberados en campañas militares y llevadas allí como exvotos. De repente entiendes que el edificio no solo habla de fe, sino también de guerra, reino y relato oficial."], "audioScript": "Este monasterio reza, sí, pero también hace propaganda. San Juan de los Reyes fue mandado construir por los Reyes Católicos en 1476 y la obra comenzó poco después bajo la dirección de Juan Guas. El resultado no es un convento discreto, sino un monumento con mensaje. Todo aquí empuja hacia la misma idea: grandeza, legitimidad, victoria y memoria. La arquitectura impresiona porque quiere impresionar. Y luego está el detalle que remata el discurso: las cadenas de la fachada. No son un adorno cualquiera. Están vinculadas a cautivos cristianos liberados en campañas militares y colocadas aquí como exvotos. En ese momento entiendes que este lugar no habla solo de fe. Habla también de guerra, reino y propaganda convertida en piedra."}, {"id": "toledo-cristo-de-la-luz", "city": "toledo", "order": 7, "title": "Mezquita del Cristo de la Luz", "maps": "https://www.google.com/maps/search/?api=1&query=Mezquita+del+Cristo+de+la+Luz+Toledo", "sources": [{"label": "Fuente oficial", "url": "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/toledo/mezquita-del-cristo-de-la-luz-%28antigua-bab-al-mardum%29"}], "who": "La fuente oficial no identifica un autor individual, pero sí la define como un oratorio califal construido en 999.", "why": "Es el monumento más antiguo en pie de Toledo y un resumen brillante del Toledo islámico y del mudéjar toledano.", "curiosity": "Tiene planta cuadrada, nueve tramos con bóvedas nervadas, capiteles visigodos reutilizados y un ábside románico-mudéjar añadido en el siglo XII.", "challenge": "Mira primero el exterior: humilde. Luego entra. El impacto está dentro.", "story": ["Este edificio juega con una trampa perfecta: por fuera parece pequeño; por dentro parece concentrar siglos enteros. La mezquita del Cristo de la Luz se levantó en 999 y es el monumento más antiguo que sigue en pie en Toledo. Eso ya sería suficiente para respetarla, pero hay más.", "Tiene una planta cuadrada, nueve espacios interiores cubiertos por bóvedas nervadas y capiteles visigodos reutilizados, como si el edificio hubiera heredado memoria de un mundo anterior. Luego, en el siglo XII, se añadió el ábside románico-mudéjar y el lugar cambió de función. En muy pocos metros tienes un resumen casi imposible de Toledo."], "audioScript": "Parece pequeño. Error. Este edificio concentra siglos enteros en muy pocos metros. La mezquita del Cristo de la Luz se levantó en 999 y es el monumento más antiguo que sigue en pie en Toledo. Solo por eso ya impondría respeto. Pero además guarda una mezcla casi imposible: planta cuadrada, nueve espacios interiores cubiertos por bóvedas nervadas y capiteles visigodos reutilizados, como si hubiera heredado memoria de un mundo anterior. Después, en el siglo XII, se añadió el ábside románico-mudéjar y el lugar cambió de función. De repente, en un edificio mínimo, tienes califato, pasado visigodo, transformación cristiana y nacimiento del mudéjar. Si alguien dijera que Toledo cabe entero en un solo monumento pequeño, este sería el mejor candidato."}, {"id": "segovia-pradera-san-marcos", "city": "segovia", "order": 1, "title": "Pradera de San Marcos", "maps": "https://www.google.com/maps/search/?api=1&query=Pradera+de+San+Marcos+Segovia", "sources": [{"label": "Fuente oficial", "url": "https://www.turismodesegovia.com/es/miradores/mirador-de-la-pradera-de-san-marcos"}], "who": "No es una residencia histórica: es el mejor escenario para entender el Alcázar antes de entrar.", "why": "La fuente oficial la define como un espacio natural con vistas privilegiadas donde mucha gente busca la foto ideal del lado norte del palacio.", "curiosity": "Aquí el tiempo parece frenar: suele haber familias, picnic y visitantes cazando la foto perfecta.", "challenge": "Mira la silueta del Alcázar y decide si parece más castillo, proa de barco o decorado de fantasía.", "story": ["Hay sitios que valen por lo que tienen y sitios que valen por lo que te permiten entender. La Pradera de San Marcos pertenece al segundo grupo. Desde aquí el Alcázar deja de ser un monumento aislado y se vuelve una escena completa: roca, valle, altura y una silueta tan reconocible que parece diseñada para quedarse en la cabeza.", "La gracia de empezar aquí es que la ciudad todavía no te ha tragado. Estás fuera, mirando la fortaleza desde una distancia justa, y por eso notas mejor su estrategia visual. No solo vigila: también impresiona. La postal funciona porque debajo hay historia de verdad."], "audioScript": "Antes de entrar en el Alcázar, míralo desde aquí. La Pradera de San Marcos no es solo un mirador bonito; es el lugar donde el castillo deja de ser un monumento aislado y se convierte en una escena completa. Roca, valle, altura y una silueta tan reconocible que parece diseñada para quedarse en la cabeza. Por eso esta parada importa tanto. La ciudad todavía no te ha tragado. Estás fuera, a la distancia exacta para entender la estrategia visual del edificio. El Alcázar no solo vigila. También impresiona. Y si parece salido de un cuento, recuerda algo importante: antes de ser postal fue fortaleza, residencia y símbolo de poder. Aquí la foto funciona porque debajo hay historia de verdad."}, {"id": "segovia-alcazar", "city": "segovia", "order": 2, "title": "Alcázar de Segovia", "maps": "https://www.google.com/maps/search/?api=1&query=Alcazar+de+Segovia", "sources": [{"label": "Fuente oficial", "url": "https://www.alcazardesegovia.com/"}], "who": "Su existencia está documentada desde principios del siglo XII y fue residencia favorita de muchos reyes castellanos, sobre todo de la dinastía Trastámara.", "why": "Aquí se cruzan palacio, fortaleza, símbolo dinástico, prisión y Real Colegio de Artillería.", "curiosity": "Desde aquí salió Isabel de Castilla para ser proclamada reina en 1474. En 1764 Carlos III instaló el Real Colegio de Artillería.", "challenge": "Piensa cuántas vidas ha tenido este edificio antes de llamarlo solo castillo.", "story": ["El Alcázar de Segovia tiene una de esas biografías que no caben en una sola etiqueta. Sí, es un castillo. Pero también fue palacio, archivo, símbolo de monarquía, prisión y academia militar. Su existencia está documentada desde principios del siglo XII y, durante la Edad Media, se convirtió en una residencia favorita de los reyes castellanos.", "Aquí se asocia para siempre la salida de Isabel de Castilla en 1474 para su proclamación como reina, y aquí se instaló en 1764 el Real Colegio de Artillería por orden de Carlos III. Por eso impresiona tanto: no estás visitando una pieza decorativa, sino un edificio que estuvo metido en decisiones enormes."], "audioScript": "Si alguien te dice que esto es solo un castillo, se queda muy corto. El Alcázar de Segovia fue fortaleza, palacio, archivo, símbolo de monarquía, prisión y academia militar. Su existencia está documentada desde principios del siglo XII y, durante la Edad Media, se convirtió en una residencia favorita de los reyes castellanos. Aquí queda unida para siempre la salida de Isabel de Castilla en 1474 para ser proclamada reina. Y aquí instaló Carlos III el Real Colegio de Artillería en 1764. Por eso impresiona tanto: no estás viendo una pieza decorativa, sino un edificio que estuvo metido en decisiones enormes. Parece de cuento, sí, pero el argumento real va de poder, estrategia y memoria."}, {"id": "segovia-catedral", "city": "segovia", "order": 3, "title": "Catedral de Segovia", "maps": "https://www.google.com/maps/search/?api=1&query=Catedral+de+Segovia", "sources": [{"label": "Fuente oficial", "url": "https://catedralsegovia.es/historia/"}], "who": "La actual catedral se levantó por orden de Carlos I tras la Guerra de las Comunidades. El primer arquitecto fue Juan Gil de Hontañón.", "why": "Es la última gran catedral gótica construida en España.", "curiosity": "La primera piedra se colocó el 8 de junio de 1525 y la consagración llegó en 1768. Se reutilizaron piezas de la catedral antigua, como el claustro de Juan Guas.", "challenge": "Mira la plaza y piensa en esto: esta catedral existe porque la anterior quedó demasiado pegada al poder militar.", "story": ["La Catedral de Segovia no nació en un momento tranquilo. Nació después de un golpe duro. La antigua catedral estaba frente al Alcázar, compartiendo espacio con la fortaleza y el poder político. Tras la Guerra de las Comunidades, Carlos I ordenó construir una nueva, ya apartada de la residencia regia.", "Ese dato lo cambia todo. La actual catedral no es solo un templo: es una reorganización completa del mapa simbólico de la ciudad. La primera piedra se colocó el 8 de junio de 1525 y la obra tardó siglos en completarse. Parte del pasado no se perdió del todo: el claustro de Juan Guas y otros elementos viajaron desde la catedral antigua a la nueva."], "audioScript": "Esta catedral nació de una crisis. La antigua estaba junto al Alcázar, demasiado pegada al foco militar y político de la ciudad. Después de la Guerra de las Comunidades, Carlos I ordenó construir una nueva, separada de ese núcleo de poder. De repente, la catedral deja de ser solo un templo y se convierte en una reorganización completa del mapa simbólico de Segovia. El primer arquitecto fue Juan Gil de Hontañón, la primera piedra se colocó el 8 de junio de 1525 y la obra tardó siglos en completarse. Y aun así, parte del pasado viajó hasta aquí: el claustro de Juan Guas y otros elementos de la catedral antigua fueron reutilizados. Por eso este edificio es tan interesante: mira al futuro sin cortar del todo con su propia herida."}, {"id": "segovia-san-martin", "city": "segovia", "order": 4, "title": "Iglesia de San Martín", "maps": "https://www.google.com/maps/search/?api=1&query=Iglesia+de+San+Martin+Segovia", "sources": [{"label": "Fuente oficial", "url": "https://www.turismodesegovia.com/es/monumentos/edificios-religiosos/iglesias/7-iglesia-de-san-martin"}], "who": "La fuente oficial la define por su valor monumental, pero no identifica un promotor individual ni un arquitecto concreto.", "why": "Es un compendio del románico castellano y demuestra que Segovia no es solo Acueducto y Alcázar.", "curiosity": "Triple atrio de columnas, tres ábsides, torre mudéjar y cuatro estatuas-columna en la fachada.", "challenge": "Intenta encontrar la placa de mármol con la efigie de San Martín en el exterior del ábside.", "story": ["San Martín sirve para romper un error muy típico: pensar que Segovia se acaba en el Acueducto y el Alcázar. No. Segovia también es una ciudad románica, y aquí lo ves clarísimo. La iglesia es casi una lección al aire libre: triple atrio de columnas, tres ábsides, torre mudéjar y una fachada con estatuas-columna que parece querer enseñar, no solo decorar.", "A veces los grandes iconos de una ciudad se comen al resto, y este lugar viene a protestar contra eso. San Martín no compite con el Acueducto; juega otra partida. Habla de barrios, de parroquia, de vida cotidiana medieval y de cómo el románico organizaba la ciudad."], "audioScript": "San Martín viene a romper un error muy típico: pensar que Segovia se acaba en el Acueducto y el Alcázar. No. Segovia también es una ciudad románica, y aquí lo ves clarísimo. Esta iglesia es casi una clase al aire libre: triple atrio de columnas, tres ábsides, torre mudéjar y una fachada con estatuas-columna que parece querer enseñar, no solo decorar. A veces los grandes iconos de una ciudad se comen al resto, y San Martín viene a protestar contra eso. No compite con el Acueducto; juega otra partida. Habla de parroquia, de barrio, de vida cotidiana medieval y de la forma en que el románico ayudaba a organizar la ciudad. Si miras despacio, entiendes que Segovia no impresiona solo por sus gigantes."}, {"id": "segovia-casa-de-los-picos", "city": "segovia", "order": 5, "title": "Casa de los Picos", "maps": "https://www.google.com/maps/search/?api=1&query=Casa+de+los+Picos+Segovia", "sources": [{"label": "Fuente oficial", "url": "https://www.turismodesegovia.com/es/monumentos/edificios-militares/casa-de-los-picos-escuela-de-arte-y-superior-de-diseno"}], "who": "En el siglo XV perteneció a Pero López de Ayala e Isabel de Silva. Hacia 1500 pasó al regidor Juan de la Hoz, que fijó allí sus casas principales y promovió la reforma con la nueva fachada.", "why": "Es uno de los grandes emblemas civiles de Segovia y una fachada capaz de reescribir la memoria de un edificio.", "curiosity": "La fachada se levantó en los primeros años del siglo XVI y parece más cercana a una utilidad guerrera medieval que a una casa renacentista. Hoy es sede de la Escuela de Arte y Diseño.", "challenge": "Cuenta los picos visibles sin perder la paciencia. Ahí está parte del juego.", "story": ["La Casa de los Picos es la parada perfecta para demostrar que una fachada puede comportarse como una declaración de guerra visual. Está en el quiebro más pronunciado de la Calle Real y su imagen no es amable: es afilada, tensa, casi defensiva.", "La fuente oficial explica que en el siglo XV la propiedad fue de Pero López de Ayala y de Isabel de Silva, y que hacia 1500 pasó al regidor Juan de la Hoz, momento en que se reformó el edificio y se añadió la famosa fachada de puntas de diamante. La tradición popular contó que la reforma cambió para siempre la memoria del edificio."], "audioScript": "Hay fachadas que decoran y fachadas que atacan. La Casa de los Picos pertenece al segundo grupo. Está en uno de los quiebros más marcados de la Calle Real y su imagen no es amable: es afilada, tensa, casi defensiva. Sabemos por la fuente oficial que en el siglo XV la casa perteneció a Pero López de Ayala e Isabel de Silva, y que hacia 1500 pasó al regidor Juan de la Hoz. Fue entonces cuando se reformó y apareció la famosa fachada de puntas de diamante. Y eso importa mucho, porque una fachada así no solo embellece: también impone, borra, renombra. La tradición popular conservó justamente esa idea. Como si una reforma hubiese sido capaz de cambiar la identidad entera del edificio. Y la verdad es que, cuando la miras, se entiende."}, {"id": "segovia-acueducto", "city": "segovia", "order": 6, "title": "Acueducto de Segovia", "maps": "https://www.google.com/maps/search/?api=1&query=Acueducto+de+Segovia", "sources": [{"label": "Historia", "url": "https://www.turismodesegovia.com/es/acueducto"}, {"label": "Leyenda", "url": "https://www.turismodesegovia.com/es/acueducto/leyenda"}], "who": "No conocemos aquí un ingeniero con nombre propio en la fuente consultada, pero sí que es una obra romana del siglo II d. C.", "why": "Es el gran emblema de Segovia y una de las mayores obras de ingeniería romana en España.", "curiosity": "Tiene 167 arcos de granito, bloques unidos sin argamasa y transportó agua durante casi dos mil años. La ciudad conserva además la leyenda del diablillo.", "challenge": "Mira arriba y pregúntate lo obvio: ¿cómo sigue ahí sin mortero?", "story": ["Y llega el final que siempre gana por KO visual. El Acueducto de Segovia fue construido en el siglo II d. C. y todavía hoy te obliga a levantar la cabeza con cara de esto no puede ser real. Tiene 167 arcos, bloques de granito encajados sin argamasa y llevó agua a la ciudad durante casi dos mil años.", "Pero Segovia, además, decidió envolverlo en una leyenda perfecta: la muchacha cansada de subir agua, el pacto con el diablo y el último sillar que faltó antes del canto del gallo. Aquí conviven dos cosas geniales a la vez: la precisión fría de la ingeniería romana y la imaginación popular que se negó a aceptar que una obra tan bestial pudiera ser solo humana."], "audioScript": "Y aquí llega el final que gana por KO visual. El Acueducto de Segovia fue construido en el siglo segundo después de Cristo y todavía hoy te obliga a levantar la cabeza con cara de esto no puede ser real. Tiene ciento sesenta y siete arcos, bloques de granito encajados sin argamasa y llevó agua a la ciudad durante casi dos mil años. Eso ya sería suficiente para dejar a cualquiera callado. Pero Segovia añadió además una leyenda perfecta: la muchacha cansada de subir agua, el pacto con el diablo y el último sillar que faltó antes del canto del gallo. Y entonces el monumento se vuelve doblemente potente. Por un lado, ingeniería romana pura. Por otro, imaginación popular intentando explicar algo tan bestial que parecía imposible."}]}</script>
+  <script id="embeddedAudioData" type="application/json">{}</script>
+
+  <header class="hero">
+    <div class="shell">
+      <div class="hero-box">
+        <span class="eyebrow">Guía narrativa · audio por parada · Google Maps</span>
+        <h1>Toledo y Segovia</h1>
+        <p>Historia contada como recorrido, con una sola pista de audio por parada, enlaces directos a Google Maps y fuentes oficiales en cada punto.</p>
       </div>
     </div>
   </header>
-  <main class="wrap">
-    <div class="tabs"><button class="tab-btn active" onclick="showDay('toledo', this)">Dia 1 · Toledo</button>
-<button class="tab-btn" onclick="showDay('segovia', this)">Dia 2 · Segovia</button></div>
-    
-    <section id="toledo" class="day active">
-      <div class="dayhead">
-        <div class="panel">
-          <div class="title">Dia 1 · Toledo</div>
-          <p>Panoramicas, capas de civilizaciones y un final potente en el monumento mas antiguo en pie de la ciudad.</p>
-          <p>Toledo no se visita: se descifra. Aqui casi ningun lugar pertenece a una sola epoca. En unas horas pasas del gran balcon sobre el Tajo al poder del Alcazar, del gotico de la Catedral a una iglesia con leyenda, a una sinagoga convertida en iglesia y a una mezquita transformada en templo cristiano. Es una ciudad hecha de capas, y ese es justamente su truco.</p>
-          <div class="controls">
-            <button class="btn-solid" onclick="playDay('toledo', 'guide')">Escuchar el dia completo</button>
-            <button class="btn-dark" onclick="playDay('toledo', 'podcast')">Podcast del dia</button>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>Ruta rapida</h3>
-          <p>Abre Google Maps con un toque. Dentro de la ciudad, los enlaces de cada parada son mas utiles que una sola ruta rigida, pero aqui tienes los accesos generales del dia.</p>
-          <div class="route-actions"><a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Mirador%20del%20Valle%20Toledo" target="_blank" rel="noopener">Foto inicial · Mirador del Valle</a>
-<a class="btn btn-dark" href="https://www.google.com/maps/dir/?api=1&amp;origin=Alcazar%20de%20Toledo&amp;destination=Mezquita%20del%20Cristo%20de%20la%20Luz%20Toledo&amp;travelmode=walking&amp;waypoints=Catedral%20Primada%20de%20Toledo%7CIglesia%20de%20Santo%20Tome%20Toledo%7CSinagoga%20de%20Santa%20Maria%20la%20Blanca%20Toledo%7CMonasterio%20de%20San%20Juan%20de%20los%20Reyes%20Toledo" target="_blank" rel="noopener">Ruta a pie · casco historico</a></div>
-        </div>
-      </div>
-      <div class="cards">
-        <article class="card" id="toledo-stop-1" data-guide="Deteneos un segundo antes de entrar en la ciudad. Lo que teneis delante no es una simple foto bonita: es un manual de supervivencia medieval. El Tajo abraza la roca, la muralla aprieta el casco y, por encima de todo, sobresalen el Alcazar y la Catedral como si compitieran por mandar sobre el perfil. Toledo no nacio para ser comoda; nacio para durar. Desde aqui se entiende por que fue tan codiciada: quien dominaba esta altura dominaba prestigio, defensa y control del territorio. Este mirador es el prologo perfecto porque convierte la ciudad en una silueta legible. Primero la ves desde fuera. Luego entraras en ella y descubriras que, detras de esa imagen compacta, hay siglos peleandose y mezclandose al mismo tiempo." data-podcast="Nora: Alto. Antes de meternos en las calles, mira la ciudad desde aqui. || Leo: Parece una fortaleza entera, verdad? Y eso no es casualidad. El Tajo la rodea, la roca la levanta y la muralla remata la jugada. || Nora: Traduccion adolescente: Toledo no estaba pensada para que la gente aparcara facil. Estaba pensada para resistir. || Leo: Quedate con esa imagen. Dentro veremos monumentos sueltos. Aqui entiendes el sistema completo.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 1</span>
-              <span class="pill">Mirador del Valle</span>
-            </div>
-            <h3>Mirador del Valle</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>No es una residencia historica concreta: es el balcon desde el que se entiende por que Toledo se volvio casi inexpugnable.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>La web oficial lo presenta como uno de los puntos mas visitados para contemplar el meandro del Tajo y el conjunto monumental entero.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Desde aqui se ve de un golpe la logica de la ciudad: rio, roca, muralla, Alcazar y Catedral.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Reto rapido: localiza primero el Alcazar y luego la Catedral sin acercarte al movil.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Deteneos un segundo antes de entrar en la ciudad. Lo que teneis delante no es una simple foto bonita: es un manual de supervivencia medieval. El Tajo abraza la roca, la muralla aprieta el casco y, por encima de todo, sobresalen el Alcazar y la Catedral como si compitieran por mandar sobre el perfil. Toledo no nacio para ser comoda; nacio para durar. Desde aqui se entiende por que fue tan codiciada: quien dominaba esta altura dominaba prestigio, defensa y control del territorio. Este mirador es el prologo perfecto porque convierte la ciudad en una silueta legible. Primero la ves desde fuera. Luego entraras en ella y descubriras que, detras de esa imagen compacta, hay siglos peleandose y mezclandose al mismo tiempo.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Mirador%20del%20Valle%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismocastillalamancha.es/es/naturaleza/monumentos-naturales/mirador-del-valle-de-toledo" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Alto. Antes de meternos en las calles, mira la ciudad desde aqui.
-Leo: Parece una fortaleza entera, verdad? Y eso no es casualidad. El Tajo la rodea, la roca la levanta y la muralla remata la jugada.
-Nora: Traduccion adolescente: Toledo no estaba pensada para que la gente aparcara facil. Estaba pensada para resistir.
-Leo: Quedate con esa imagen. Dentro veremos monumentos sueltos. Aqui entiendes el sistema completo.</div>
-          </details>
-        </article>
-    
 
-        <article class="card" id="toledo-stop-2" data-guide="Aqui mandaba el mensaje antes incluso que las personas. El Alcazar esta plantado en la parte mas alta de Toledo y su funcion ha sido siempre la misma: recordarle a la ciudad donde vive el poder. El lugar ya era estrategico en epoca romana, pero su forma actual cuaja en el Renacimiento, cuando Carlos V y Felipe II lo usan como residencia real. Fijate en la sensacion que provoca: lineas severas, planta cuadrada, cuatro torres y ni una sola concesion a la blandura. El edificio parece decir: aqui no se viene a improvisar. Lo impresionante es que no estas viendo una pieza congelada. El Alcazar ha sido destruido, rehecho y reprogramado varias veces, y aun asi sigue imponiendose sobre el skyline de Toledo. Es como si cada siglo hubiera querido dejar su firma y el edificio hubiera respondido: muy bien, pero el mando sigue aqui arriba." data-podcast="Leo: Este edificio no intenta caer bien. || Nora: Exacto. Intenta impresionar. Y lo hace desde la colina mas alta de Toledo. || Leo: Primero fue un enclave estrategico desde epoca romana; luego, en el Renacimiento, se convirtio en residencia real de Carlos V y Felipe II. || Nora: Y aunque sufrio destrucciones y reconstrucciones brutales, sigue dominando la ciudad como si nada. Eso no es solo arquitectura. Eso es poder convertido en piedra.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 2</span>
-              <span class="pill">Alcazar de Toledo</span>
-            </div>
-            <h3>Alcazar de Toledo</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>El emplazamiento se uso desde epoca romana; en el Renacimiento se convirtio en residencia real bajo Carlos V y Felipe II.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Esta en la colina mas alta y resume la historia del poder en Toledo.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Sufrio varias destrucciones y reconstrucciones; la mas decisiva llego tras el asedio de 1936. Hoy alberga el Museo del Ejercito y la Biblioteca regional.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Mira sus cuatro torres de esquina: el edificio quiere parecer equilibrado, frio y dominante. Lo consigue.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Aqui mandaba el mensaje antes incluso que las personas. El Alcazar esta plantado en la parte mas alta de Toledo y su funcion ha sido siempre la misma: recordarle a la ciudad donde vive el poder. El lugar ya era estrategico en epoca romana, pero su forma actual cuaja en el Renacimiento, cuando Carlos V y Felipe II lo usan como residencia real. Fijate en la sensacion que provoca: lineas severas, planta cuadrada, cuatro torres y ni una sola concesion a la blandura. El edificio parece decir: aqui no se viene a improvisar. Lo impresionante es que no estas viendo una pieza congelada. El Alcazar ha sido destruido, rehecho y reprogramado varias veces, y aun asi sigue imponiendose sobre el skyline de Toledo. Es como si cada siglo hubiera querido dejar su firma y el edificio hubiera respondido: muy bien, pero el mando sigue aqui arriba.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Alcazar%20de%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/museos/toledo/alcazar-de-toledo-%28museo-del-ejercito%29" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Leo: Este edificio no intenta caer bien.
-Nora: Exacto. Intenta impresionar. Y lo hace desde la colina mas alta de Toledo.
-Leo: Primero fue un enclave estrategico desde epoca romana; luego, en el Renacimiento, se convirtio en residencia real de Carlos V y Felipe II.
-Nora: Y aunque sufrio destrucciones y reconstrucciones brutales, sigue dominando la ciudad como si nada. Eso no es solo arquitectura. Eso es poder convertido en piedra.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="toledo-stop-3" data-guide="Bienvenidos al nivel jefe de Toledo. La Catedral no solo es enorme; tambien es una declaracion de intenciones. Aqui hubo antes una basilica visigoda y despues la mezquita mayor. Luego, en 1226, Fernando III y el arzobispo Jimenez de Rada pusieron en marcha un templo gotico que tardo mas de doscientos anos en completarse. Eso significa que no fue obra de una generacion brillante, sino de muchas generaciones empenadas en dejar algo inmenso. La catedral es importante por lo que ves y por lo que representa. Es fe, si, pero tambien prestigio, jerarquia, memoria y arte acumulado. Sus cinco naves, sus vidrieras, el coro, la Custodia de Arfe o El Expolio del Greco no son piezas sueltas: son municion simbolica. Aqui Toledo no susurra. Aqui Toledo habla a lo grande." data-podcast="Nora: Si Toledo fuera una saga, este seria el capitulo donde todo sube de nivel. || Leo: Porque la Catedral esta levantada sobre un lugar que ya habia sido sagrado antes: primero basilica visigoda, despues mezquita mayor. || Nora: En 1226 arranca la obra gotica con Fernando III y Jimenez de Rada. Y tarda mas de dos siglos en completarse. || Leo: O sea: este edificio no es una obra rapida. Es un proyecto de generaciones enteras decidido a decirle al mundo que Toledo jugaba en la maxima liga.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 3</span>
-              <span class="pill">Catedral Primada</span>
-            </div>
-            <h3>Catedral Primada</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>La obra comenzo en 1226 por impulso de Fernando III y del arzobispo Rodrigo Jimenez de Rada.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es una de las grandes catedrales goticas de Europa y la sede primada de Espana.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Se alza sobre la antigua basilica visigoda y la mezquita mayor. Su construccion duro mas de dos siglos y se consagro en 1493.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Piensa en esto mientras entras: varias religiones consideraron sagrado este mismo solar.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Bienvenidos al nivel jefe de Toledo. La Catedral no solo es enorme; tambien es una declaracion de intenciones. Aqui hubo antes una basilica visigoda y despues la mezquita mayor. Luego, en 1226, Fernando III y el arzobispo Jimenez de Rada pusieron en marcha un templo gotico que tardo mas de doscientos anos en completarse. Eso significa que no fue obra de una generacion brillante, sino de muchas generaciones empenadas en dejar algo inmenso. La catedral es importante por lo que ves y por lo que representa. Es fe, si, pero tambien prestigio, jerarquia, memoria y arte acumulado. Sus cinco naves, sus vidrieras, el coro, la Custodia de Arfe o El Expolio del Greco no son piezas sueltas: son municion simbolica. Aqui Toledo no susurra. Aqui Toledo habla a lo grande.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Catedral%20Primada%20de%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.catedralprimada.es/la-catedral/historia/" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Si Toledo fuera una saga, este seria el capitulo donde todo sube de nivel.
-Leo: Porque la Catedral esta levantada sobre un lugar que ya habia sido sagrado antes: primero basilica visigoda, despues mezquita mayor.
-Nora: En 1226 arranca la obra gotica con Fernando III y Jimenez de Rada. Y tarda mas de dos siglos en completarse.
-Leo: O sea: este edificio no es una obra rapida. Es un proyecto de generaciones enteras decidido a decirle al mundo que Toledo jugaba en la maxima liga.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="toledo-stop-4" data-guide="Santo Tome parece una iglesia pequena, pero dentro guarda una explosion narrativa. La parroquia nace tras la reconquista cristiana y queda documentada en 1142. Mas tarde se reconstruye gracias a Gonzalo Ruiz de Toledo, senor de Orgaz, que ademas quiso ser enterrado aqui. Y entonces llega el giro de guion: cuando murio en 1327, la tradicion conto que san Agustin y san Esteban bajaron del cielo para colocar su cuerpo en el sepulcro como premio a su caridad. Siglos despues, El Greco convirtio esa leyenda en una imagen inmortal: El entierro del Senor de Orgaz. Asi que esta parada no va solo de mirar una iglesia. Va de ver como una ciudad fabrica memoria y la vuelve casi intocable. Encima, la torre mudejar conserva la memoria de un antiguo alminar. Otra vez Toledo jugando a mezclar mundos sin pedir permiso." data-podcast="Leo: Plot twist toledano numero uno: una iglesia que parece tranquila y de repente te suelta una leyenda celestial. || Nora: Aqui fue enterrado Gonzalo Ruiz de Toledo, senor de Orgaz. La tradicion cuenta que, en su entierro, bajaron san Agustin y san Esteban a colocarlo en la tumba. || Leo: Y siglos despues El Greco dijo: perfecto, esto merece una obra maestra. || Nora: Resultado: arquitectura mudejar, torre con aire de alminar, leyenda medieval y uno de los cuadros mas famosos del arte europeo en el mismo sitio.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 4</span>
-              <span class="pill">Iglesia de Santo Tome</span>
-            </div>
-            <h3>Iglesia de Santo Tome</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>La parroquia se fundo tras la reconquista de 1085; a comienzos del siglo XIV se reconstruyo a expensas de Gonzalo Ruiz de Toledo, senor de Orgaz.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Une arquitectura mudejar, leyenda medieval y una de las obras maestras de El Greco.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>La torre mudejar responde al esquema de un alminar. El espacio del cuadro de El Greco se musealizo en 1972.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Cuando veas el cuadro, busca la mezcla: historia local, milagro y propaganda de memoria.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Santo Tome parece una iglesia pequena, pero dentro guarda una explosion narrativa. La parroquia nace tras la reconquista cristiana y queda documentada en 1142. Mas tarde se reconstruye gracias a Gonzalo Ruiz de Toledo, senor de Orgaz, que ademas quiso ser enterrado aqui. Y entonces llega el giro de guion: cuando murio en 1327, la tradicion conto que san Agustin y san Esteban bajaron del cielo para colocar su cuerpo en el sepulcro como premio a su caridad. Siglos despues, El Greco convirtio esa leyenda en una imagen inmortal: El entierro del Senor de Orgaz. Asi que esta parada no va solo de mirar una iglesia. Va de ver como una ciudad fabrica memoria y la vuelve casi intocable. Encima, la torre mudejar conserva la memoria de un antiguo alminar. Otra vez Toledo jugando a mezclar mundos sin pedir permiso.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20de%20Santo%20Tome%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/iglesias/toledo/iglesia-de-santo-tome-%28el-entierro-del-senor-de-orgaz%29" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Leo: Plot twist toledano numero uno: una iglesia que parece tranquila y de repente te suelta una leyenda celestial.
-Nora: Aqui fue enterrado Gonzalo Ruiz de Toledo, senor de Orgaz. La tradicion cuenta que, en su entierro, bajaron san Agustin y san Esteban a colocarlo en la tumba.
-Leo: Y siglos despues El Greco dijo: perfecto, esto merece una obra maestra.
-Nora: Resultado: arquitectura mudejar, torre con aire de alminar, leyenda medieval y uno de los cuadros mas famosos del arte europeo en el mismo sitio.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="toledo-stop-5" data-guide="Aqui llega uno de los grandes giros de Toledo. Santa Maria la Blanca no nacio como iglesia: nacio como sinagoga, hacia 1180, para una comunidad judia que estaba creciendo. Despues, en 1391, fue expropiada y convertida en iglesia cristiana. Ese cambio no es una nota al pie; es la historia del edificio. Lo increible es que, a pesar de la transformacion, el interior sigue teniendo una fuerza visual brutal: cinco naves, arcos de herradura, yeserias de inspiracion almohade y un bosque de soportes que hace que el espacio parezca infinito. Si alguien te pregunta por que este lugar importa, la respuesta es facil: porque aqui Toledo deja de ser una teoria sobre convivencia y conflicto, y se vuelve algo que puedes ver. Una religion rezo aqui, otra la heredo, y la piedra todavia recuerda ambas cosas." data-podcast="Nora: Atencion al giro. Este lugar se llama Santa Maria la Blanca, pero no nacio como iglesia. || Leo: Nacio como sinagoga, hacia 1180, en pleno barrio judio. Y en 1391 fue expropiada y convertida en iglesia cristiana. || Nora: Lo fuerte es que el interior sigue lanzando senales del pasado por todas partes: arcos de herradura, yeserias, cinco naves, treinta y dos capiteles distintos. || Leo: Si Toledo fuera una playlist, esta parada seria la cancion donde se mezclan varios estilos y, aun asi, funciona.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 5</span>
-              <span class="pill">Sinagoga de Santa Maria la Blanca</span>
-            </div>
-            <h3>Sinagoga de Santa Maria la Blanca</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>Se construyo hacia 1180 como sinagoga para una comunidad judia en expansion. La fuente oficial consultada no identifica aqui un arquitecto individual.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es uno de los espacios mas potentes para explicar el Toledo sefardi y el cruce entre arte almohade, mudejar y memoria judia.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>En 1391 fue expropiada y transformada en iglesia. Tiene cinco naves y 32 capiteles diferentes.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Mirad el interior como si fuera un bosque blanco: columnas, ritmo y silencio.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Aqui llega uno de los grandes giros de Toledo. Santa Maria la Blanca no nacio como iglesia: nacio como sinagoga, hacia 1180, para una comunidad judia que estaba creciendo. Despues, en 1391, fue expropiada y convertida en iglesia cristiana. Ese cambio no es una nota al pie; es la historia del edificio. Lo increible es que, a pesar de la transformacion, el interior sigue teniendo una fuerza visual brutal: cinco naves, arcos de herradura, yeserias de inspiracion almohade y un bosque de soportes que hace que el espacio parezca infinito. Si alguien te pregunta por que este lugar importa, la respuesta es facil: porque aqui Toledo deja de ser una teoria sobre convivencia y conflicto, y se vuelve algo que puedes ver. Una religion rezo aqui, otra la heredo, y la piedra todavia recuerda ambas cosas.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Sinagoga%20de%20Santa%20Maria%20la%20Blanca%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/toledo/sinagoga-de-santa-maria-la-blanca" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Atencion al giro. Este lugar se llama Santa Maria la Blanca, pero no nacio como iglesia.
-Leo: Nacio como sinagoga, hacia 1180, en pleno barrio judio. Y en 1391 fue expropiada y convertida en iglesia cristiana.
-Nora: Lo fuerte es que el interior sigue lanzando senales del pasado por todas partes: arcos de herradura, yeserias, cinco naves, treinta y dos capiteles distintos.
-Leo: Si Toledo fuera una playlist, esta parada seria la cancion donde se mezclan varios estilos y, aun asi, funciona.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="toledo-stop-6" data-guide="San Juan de los Reyes es la prueba de que un edificio puede rezar y hacer propaganda al mismo tiempo. Los Reyes Catolicos ordenaron su construccion en 1476 y la obra arranco poco despues bajo la direccion de Juan Guas. El resultado no es un monasterio discreto, sino un monumento con mensaje. Todo aqui empuja en la misma direccion: grandeza, legitimidad, victoria, memoria. La arquitectura impresiona porque quiere impresionar; no es un accidente. Y luego esta el detalle que lo cambia todo: las cadenas que cuelgan en el exterior. No son decoracion cualquiera, sino restos asociados a cautivos cristianos liberados en las campanas de Malaga y Almeria, llevados alli como exvotos. De repente entiendes que el edificio no solo habla de fe, sino tambien de guerra, reino y relato oficial. Si Toledo es una ciudad de capas, este lugar es poder monarquico convertido en espectaculo." data-podcast="Leo: Este monasterio parece tranquilo. Error. Es muchisimo mas combativo de lo que parece. || Nora: Porque los Reyes Catolicos lo mandaron construir en 1476 y lo pensaron como un monumento con mensaje: victoria, poder, devocion y memoria. || Leo: Y si dudas, mira las cadenas de la fachada. No estan ahi por estetica. Recuerdan a cautivos cristianos rescatados en las campanas de Malaga y Almeria. || Nora: O sea: no solo estais viendo un monasterio. Estais viendo politica en modo piedra.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 6</span>
-              <span class="pill">Monasterio de San Juan de los Reyes</span>
-            </div>
-            <h3>Monasterio de San Juan de los Reyes</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>Fue mandado construir por los Reyes Catolicos en 1476. La obra comenzo hacia 1477 y el arquitecto principal fue Juan Guas.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es una pieza clave del gotico hispano-flamenco y un monumento pensado para proyectar poder, victoria y devocion.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Las cadenas de la fachada recuerdan a cautivos cristianos rescatados en Malaga y Almeria y trasladadas como exvotos.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>No lo mires solo como monasterio: miralo como un mensaje politico tallado en piedra.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">San Juan de los Reyes es la prueba de que un edificio puede rezar y hacer propaganda al mismo tiempo. Los Reyes Catolicos ordenaron su construccion en 1476 y la obra arranco poco despues bajo la direccion de Juan Guas. El resultado no es un monasterio discreto, sino un monumento con mensaje. Todo aqui empuja en la misma direccion: grandeza, legitimidad, victoria, memoria. La arquitectura impresiona porque quiere impresionar; no es un accidente. Y luego esta el detalle que lo cambia todo: las cadenas que cuelgan en el exterior. No son decoracion cualquiera, sino restos asociados a cautivos cristianos liberados en las campanas de Malaga y Almeria, llevados alli como exvotos. De repente entiendes que el edificio no solo habla de fe, sino tambien de guerra, reino y relato oficial. Si Toledo es una ciudad de capas, este lugar es poder monarquico convertido en espectaculo.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Monasterio%20de%20San%20Juan%20de%20los%20Reyes%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/toledo/monasterio-de-san-juan-de-los-reyes" target="_blank" rel="noopener">Fuente oficial · turismo</a>
-<a class="btn btn-ghost" href="https://www.sanjuandelosreyes.org/monumento/" target="_blank" rel="noopener">Fuente oficial · monumento</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Leo: Este monasterio parece tranquilo. Error. Es muchisimo mas combativo de lo que parece.
-Nora: Porque los Reyes Catolicos lo mandaron construir en 1476 y lo pensaron como un monumento con mensaje: victoria, poder, devocion y memoria.
-Leo: Y si dudas, mira las cadenas de la fachada. No estan ahi por estetica. Recuerdan a cautivos cristianos rescatados en las campanas de Malaga y Almeria.
-Nora: O sea: no solo estais viendo un monasterio. Estais viendo politica en modo piedra.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="toledo-stop-7" data-guide="Este edificio juega con una trampa perfecta: por fuera parece pequeno; por dentro parece concentrar siglos enteros. La mezquita del Cristo de la Luz se levanto en 999 y es el monumento mas antiguo que sigue en pie en Toledo. Eso ya seria suficiente para respetarla, pero hay mas. Tiene una planta cuadrada, nueve espacios interiores cubiertos por bovedas nervadas y capiteles visigodos reutilizados, como si el edificio hubiera heredado memoria de un mundo anterior. Luego, en el siglo XII, se anadio el abside romanico-mudejar y el lugar cambio de funcion. En muy pocos metros tienes un resumen casi imposible: califato, pasado visigodo, transformacion cristiana y nacimiento del mudejar. Si alguien te dijera que Toledo cabe entero en un monumento pequeno, este seria el mejor candidato." data-podcast="Nora: Ultima parada de Toledo y quiza la mas enganosa. || Leo: Porque parece pequena, pero esta cargadisima de historia. Fue construida en 999 y es el monumento mas antiguo en pie de la ciudad. || Nora: Dentro hay nueve espacios con bovedas nervadas y hasta capiteles visigodos reutilizados. Despues, en el siglo XII, se anadio un abside romanico-mudejar. || Leo: Traduccion: en un edificio minimo caben varias civilizaciones seguidas. Muy Toledo. Muchisimo Toledo.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 7</span>
-              <span class="pill">Mezquita del Cristo de la Luz</span>
-            </div>
-            <h3>Mezquita del Cristo de la Luz</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>La fuente oficial consultada no identifica aqui un autor individual, pero si senala que es un oratorio califal construido en 999.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es el monumento mas antiguo en pie de Toledo y un resumen brillante del Toledo islamico y del mudejar toledano.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Tiene planta cuadrada, nueve tramos con bovedas nervadas, capiteles visigodos reutilizados y un abside romanico-mudejar anadido en el siglo XII.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Mirad primero el exterior: humilde. Luego entrad. El impacto esta dentro.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Este edificio juega con una trampa perfecta: por fuera parece pequeno; por dentro parece concentrar siglos enteros. La mezquita del Cristo de la Luz se levanto en 999 y es el monumento mas antiguo que sigue en pie en Toledo. Eso ya seria suficiente para respetarla, pero hay mas. Tiene una planta cuadrada, nueve espacios interiores cubiertos por bovedas nervadas y capiteles visigodos reutilizados, como si el edificio hubiera heredado memoria de un mundo anterior. Luego, en el siglo XII, se anadio el abside romanico-mudejar y el lugar cambio de funcion. En muy pocos metros tienes un resumen casi imposible: califato, pasado visigodo, transformacion cristiana y nacimiento del mudejar. Si alguien te dijera que Toledo cabe entero en un monumento pequeno, este seria el mejor candidato.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Mezquita%20del%20Cristo%20de%20la%20Luz%20Toledo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/toledo/mezquita-del-cristo-de-la-luz-%28antigua-bab-al-mardum%29" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Ultima parada de Toledo y quiza la mas enganosa.
-Leo: Porque parece pequena, pero esta cargadisima de historia. Fue construida en 999 y es el monumento mas antiguo en pie de la ciudad.
-Nora: Dentro hay nueve espacios con bovedas nervadas y hasta capiteles visigodos reutilizados. Despues, en el siglo XII, se anadio un abside romanico-mudejar.
-Leo: Traduccion: en un edificio minimo caben varias civilizaciones seguidas. Muy Toledo. Muchisimo Toledo.</div>
-          </details>
-        </article>
+  <nav class="jump-nav" aria-label="Navegación principal">
+    <div class="jump-wrap">
+      <a class="jump" href="#toledo">Toledo</a>
+      <a class="jump" href="#segovia">Segovia</a>
+      <a class="jump" href="#toledo-mirador-del-valle">Mirador del Valle</a>
+      <a class="jump" href="#segovia-pradera-san-marcos">Pradera de San Marcos</a>
+      <a class="jump" href="#segovia-acueducto">Acueducto</a>
     </div>
-    </section>
-    
+  </nav>
 
-    <section id="segovia" class="day">
-      <div class="dayhead">
-        <div class="panel">
-          <div class="title">Dia 2 · Segovia</div>
-          <p>Castillo de cuento, catedral nacida tras una guerra urbana y un final romano que todavia intimida.</p>
-          <p>Segovia entra por los ojos muy rapido, pero se entiende mejor si la lees como una mezcla rarisima de cuento, guerra, religion e ingenieria. Empiezas con la foto mas famosa del Alcazar, sigues por un palacio que fue residencia de reyes, prision y colegio militar, te plantas ante una catedral nacida despues de un conflicto, atraviesas romanico puro y terminas debajo de una obra romana que siguio llevando agua durante siglos.</p>
-          <div class="controls">
-            <button class="btn-solid" onclick="playDay('segovia', 'guide')">Escuchar el dia completo</button>
-            <button class="btn-dark" onclick="playDay('segovia', 'podcast')">Podcast del dia</button>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>Ruta rapida</h3>
-          <p>Abre Google Maps con un toque. Dentro de la ciudad, los enlaces de cada parada son mas utiles que una sola ruta rigida, pero aqui tienes los accesos generales del dia.</p>
-          <div class="route-actions"><a class="btn btn-dark" href="https://www.google.com/maps/dir/?api=1&amp;origin=Pradera%20de%20San%20Marcos%20Segovia&amp;destination=Acueducto%20de%20Segovia&amp;travelmode=walking&amp;waypoints=Alcazar%20de%20Segovia%7CCatedral%20de%20Segovia%7CIglesia%20de%20San%20Martin%20Segovia%7CCasa%20de%20los%20Picos%20Segovia" target="_blank" rel="noopener">Ruta del dia en Google Maps</a></div>
-        </div>
-      </div>
-      <div class="cards">
-        <article class="card" id="segovia-stop-1" data-guide="Hay sitios que valen por lo que tienen y sitios que valen por lo que te permiten entender. La Pradera de San Marcos pertenece al segundo grupo. Desde aqui el Alcazar deja de ser un monumento aislado y se vuelve una escena completa: roca, valle, altura y una silueta tan reconocible que parece disenada para quedarse en la cabeza. La gracia de empezar aqui es que la ciudad todavia no te ha tragado. Estas fuera, mirando la fortaleza desde una distancia justa, y por eso notas mejor su estrategia visual. No solo vigila: tambien impresiona. Si luego, mas tarde, el Alcazar te parece salido de un cuento, recuerda que antes fue exactamente lo contrario: una maquina seria de poder, defensa y residencia real. Aqui la postal funciona porque debajo hay historia de verdad." data-podcast="Nora: Vale, confesadlo. Desde aqui el Alcazar parece un castillo inventado. || Leo: Si, pero esa es la trampa. Antes de ser postal fue fortaleza, residencia y simbolo de poder. || Nora: La Pradera de San Marcos sirve justo para eso: para verlo entero, con la roca, el valle y la altura haciendo parte del espectaculo. || Leo: Foto si. Pero foto con contexto. Y eso cambia bastante la pelicula.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 1</span>
-              <span class="pill">Pradera de San Marcos</span>
-            </div>
-            <h3>Pradera de San Marcos</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>No es una residencia historica: es el mejor escenario para entender el Alcazar antes de entrar.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>La fuente oficial la define como un espacio natural con vistas privilegiadas donde mucha gente busca la foto ideal del lado norte del palacio.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Aqui el tiempo se frena un poco: suele haber familias, gente de picnic y visitantes cazando la foto perfecta.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Mirad la silueta del Alcazar y decidid si parece mas castillo, proa de barco o decorado de fantasia.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Hay sitios que valen por lo que tienen y sitios que valen por lo que te permiten entender. La Pradera de San Marcos pertenece al segundo grupo. Desde aqui el Alcazar deja de ser un monumento aislado y se vuelve una escena completa: roca, valle, altura y una silueta tan reconocible que parece disenada para quedarse en la cabeza. La gracia de empezar aqui es que la ciudad todavia no te ha tragado. Estas fuera, mirando la fortaleza desde una distancia justa, y por eso notas mejor su estrategia visual. No solo vigila: tambien impresiona. Si luego, mas tarde, el Alcazar te parece salido de un cuento, recuerda que antes fue exactamente lo contrario: una maquina seria de poder, defensa y residencia real. Aqui la postal funciona porque debajo hay historia de verdad.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Pradera%20de%20San%20Marcos%20Segovia" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismodesegovia.com/es/miradores/mirador-de-la-pradera-de-san-marcos" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Vale, confesadlo. Desde aqui el Alcazar parece un castillo inventado.
-Leo: Si, pero esa es la trampa. Antes de ser postal fue fortaleza, residencia y simbolo de poder.
-Nora: La Pradera de San Marcos sirve justo para eso: para verlo entero, con la roca, el valle y la altura haciendo parte del espectaculo.
-Leo: Foto si. Pero foto con contexto. Y eso cambia bastante la pelicula.</div>
-          </details>
-        </article>
-    
+  <main class="shell" id="app"></main>
 
-        <article class="card" id="segovia-stop-2" data-guide="El Alcazar de Segovia tiene una de esas biografias que no caben en una sola etiqueta. Si, es un castillo. Pero tambien fue palacio, archivo, simbolo de monarquia, prision y academia militar. Su existencia esta documentada desde principios del siglo XII y, durante la Edad Media, se convirtio en una residencia favorita de los reyes castellanos. Con los Trastamara gano todavia mas peso politico y simbolico. Aqui se asocia para siempre la salida de Isabel de Castilla en 1474 para su proclamacion como reina, y aqui se instalo en 1764 el Real Colegio de Artilleria por orden de Carlos III. Por eso impresiona tanto: no estas visitando una pieza decorativa, sino un edificio que estuvo metido en decisiones enormes. Ademas, su silueta es tan poderosa que acabo convertida en imagen global. Pero el secreto esta en lo de dentro: cada sala te recuerda que el cuento nunca fue inocente." data-podcast="Leo: Este es el clasico sitio al que todo el mundo llama castillo y se queda corto. || Nora: Porque el Alcazar fue residencia de reyes castellanos, escenario politico, prision y, desde 1764, sede del Real Colegio de Artilleria. || Leo: Y encima aqui queda vinculada la proclamacion de Isabel en 1474. O sea: mucho mas que una postal bonita. || Nora: Si parece de cuento es porque los siglos lo fueron modelando. Pero el argumento real va de poder, estrategia y memoria.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 2</span>
-              <span class="pill">Alcazar de Segovia</span>
-            </div>
-            <h3>Alcazar de Segovia</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>Su existencia esta documentada desde principios del siglo XII y fue una residencia favorita de muchos reyes castellanos, sobre todo de la dinastia Trastamara.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Aqui se cruzan palacio, fortaleza, simbolo dinastico, prision y Real Colegio de Artilleria.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Desde aqui salio Isabel de Castilla para ser proclamada reina en 1474. En 1764 Carlos III instalo el Real Colegio de Artilleria. Su horario oficial de abril a octubre es de 10:00 a 19:30.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Pensad cuantas vidas ha tenido este edificio antes de llamarlo solo castillo.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">El Alcazar de Segovia tiene una de esas biografias que no caben en una sola etiqueta. Si, es un castillo. Pero tambien fue palacio, archivo, simbolo de monarquia, prision y academia militar. Su existencia esta documentada desde principios del siglo XII y, durante la Edad Media, se convirtio en una residencia favorita de los reyes castellanos. Con los Trastamara gano todavia mas peso politico y simbolico. Aqui se asocia para siempre la salida de Isabel de Castilla en 1474 para su proclamacion como reina, y aqui se instalo en 1764 el Real Colegio de Artilleria por orden de Carlos III. Por eso impresiona tanto: no estas visitando una pieza decorativa, sino un edificio que estuvo metido en decisiones enormes. Ademas, su silueta es tan poderosa que acabo convertida en imagen global. Pero el secreto esta en lo de dentro: cada sala te recuerda que el cuento nunca fue inocente.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Alcazar%20de%20Segovia" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.alcazardesegovia.com/" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Leo: Este es el clasico sitio al que todo el mundo llama castillo y se queda corto.
-Nora: Porque el Alcazar fue residencia de reyes castellanos, escenario politico, prision y, desde 1764, sede del Real Colegio de Artilleria.
-Leo: Y encima aqui queda vinculada la proclamacion de Isabel en 1474. O sea: mucho mas que una postal bonita.
-Nora: Si parece de cuento es porque los siglos lo fueron modelando. Pero el argumento real va de poder, estrategia y memoria.</div>
-          </details>
-        </article>
-    
+  <div class="footer-space"></div>
 
-        <article class="card" id="segovia-stop-3" data-guide="La Catedral de Segovia no nacio en un momento tranquilo. Nacio despues de un golpe duro. La antigua catedral estaba frente al Alcazar, compartiendo espacio con la fortaleza y el poder politico. Tras la Guerra de las Comunidades, Carlos I ordeno construir una nueva, ya apartada de la residencia regia. Ese dato lo cambia todo. La actual catedral no es solo un templo: es una reorganizacion completa del mapa simbolico de la ciudad. El primer arquitecto fue Juan Gil de Hontanon, la primera piedra se coloco el 8 de junio de 1525 y la obra tardo siglos en completarse. Encima, parte del pasado no se perdio del todo: el magnifico claustro de Juan Guas y otros elementos viajaron desde la catedral antigua a la nueva. Asi que este edificio mira al futuro sin cortar del todo con el pasado. Elegante por fuera, estrategica por dentro." data-podcast="Nora: Esta catedral es preciosa, si. Pero su origen tiene bastante drama. || Leo: La antigua estaba junto al Alcazar. Despues de la Guerra de las Comunidades, Carlos I ordeno construir una nueva, separada del foco militar y politico. || Nora: El arquitecto inicial fue Juan Gil de Hontanon y la primera piedra se puso el 8 de junio de 1525. || Leo: Es decir: no solo estas viendo la ultima gran catedral gotica de Espana. Estas viendo como una ciudad se recoloco despues de una crisis.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 3</span>
-              <span class="pill">Catedral de Segovia</span>
-            </div>
-            <h3>Catedral de Segovia</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>La actual catedral se levanto por orden de Carlos I tras la Guerra de las Comunidades. El primer arquitecto fue Juan Gil de Hontanon, con Garcia de Cubillas como aparejador.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es la ultima gran catedral gotica construida en Espana.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>La primera piedra se coloco el 8 de junio de 1525 y la consagracion llego en 1768. Se reutilizaron piezas de la catedral antigua, como el claustro de Juan Guas.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Mira la plaza y piensa en esto: esta catedral existe porque la anterior quedo demasiado pegada al poder militar.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">La Catedral de Segovia no nacio en un momento tranquilo. Nacio despues de un golpe duro. La antigua catedral estaba frente al Alcazar, compartiendo espacio con la fortaleza y el poder politico. Tras la Guerra de las Comunidades, Carlos I ordeno construir una nueva, ya apartada de la residencia regia. Ese dato lo cambia todo. La actual catedral no es solo un templo: es una reorganizacion completa del mapa simbolico de la ciudad. El primer arquitecto fue Juan Gil de Hontanon, la primera piedra se coloco el 8 de junio de 1525 y la obra tardo siglos en completarse. Encima, parte del pasado no se perdio del todo: el magnifico claustro de Juan Guas y otros elementos viajaron desde la catedral antigua a la nueva. Asi que este edificio mira al futuro sin cortar del todo con el pasado. Elegante por fuera, estrategica por dentro.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Catedral%20de%20Segovia" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://catedralsegovia.es/historia/" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Esta catedral es preciosa, si. Pero su origen tiene bastante drama.
-Leo: La antigua estaba junto al Alcazar. Despues de la Guerra de las Comunidades, Carlos I ordeno construir una nueva, separada del foco militar y politico.
-Nora: El arquitecto inicial fue Juan Gil de Hontanon y la primera piedra se puso el 8 de junio de 1525.
-Leo: Es decir: no solo estas viendo la ultima gran catedral gotica de Espana. Estas viendo como una ciudad se recoloco despues de una crisis.</div>
-          </details>
-        </article>
-    
+  <div class="toolbar" id="toolbar" role="region" aria-label="Herramientas de audio">
+    <span class="toolbar-title">Audio</span>
+    <span class="toolbar-count" id="toolbarCount">0 / 0</span>
+    <button class="primary-button" id="exportHtmlBtn" type="button">Exportar HTML</button>
+    <button class="ghost-button" id="downloadScriptsBtn" type="button">Guiones TXT</button>
+    <button class="ghost-button" id="clearAllBtn" type="button">Quitar audios</button>
+    <button class="ghost-button" id="hideAdminBtn" type="button">Ocultar</button>
+  </div>
 
-        <article class="card" id="segovia-stop-4" data-guide="San Martin sirve para romper un error muy tipico: pensar que Segovia se acaba en el Acueducto y el Alcazar. No. Segovia tambien es una ciudad romanica, y aqui lo ves clarisimo. La iglesia es casi una leccion al aire libre: triple atrio de columnas, tres absides, torre mudejar y una fachada con estatuas-columna que parece querer ensenar, no solo decorar. A veces los grandes iconos de una ciudad se comen al resto, y este lugar viene a protestar contra eso. Porque San Martin no compite con el Acueducto; juega otra partida. Habla de barrios, de parroquia, de vida cotidiana medieval y de la manera en que el romanico organizaba la ciudad. Si miras despacio, entiendes que Segovia no impresiona solo por sus gigantes, sino tambien por la densidad de sus piezas intermedias." data-podcast="Leo: Aqui viene la sorpresa para quienes piensan que Segovia es solo Acueducto y Alcazar. || Nora: San Martin es puro romanico castellano: triple atrio, tres absides, torre mudejar y detalles escultoricos por todas partes. || Leo: No tenemos en la fuente oficial un arquitecto concreto con nombre y apellido, pero si una idea clarisima de su importancia. || Nora: Esta iglesia demuestra que Segovia no vive solo de dos monumentos enormes. Vive tambien de una red de edificios que sostienen toda su identidad.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 4</span>
-              <span class="pill">Iglesia de San Martin</span>
-            </div>
-            <h3>Iglesia de San Martin</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>La fuente oficial consultada la define por su valor monumental; no identifica aqui un promotor individual ni un arquitecto concreto.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es un compendio del romanico castellano y demuestra que Segovia no es solo Acueducto y Alcazar.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Triple atrio de columnas, tres absides, torre mudejar y cuatro estatuas-columna en la fachada.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Intentad encontrar la placa de marmol con la efigie de San Martin en el exterior del abside.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">San Martin sirve para romper un error muy tipico: pensar que Segovia se acaba en el Acueducto y el Alcazar. No. Segovia tambien es una ciudad romanica, y aqui lo ves clarisimo. La iglesia es casi una leccion al aire libre: triple atrio de columnas, tres absides, torre mudejar y una fachada con estatuas-columna que parece querer ensenar, no solo decorar. A veces los grandes iconos de una ciudad se comen al resto, y este lugar viene a protestar contra eso. Porque San Martin no compite con el Acueducto; juega otra partida. Habla de barrios, de parroquia, de vida cotidiana medieval y de la manera en que el romanico organizaba la ciudad. Si miras despacio, entiendes que Segovia no impresiona solo por sus gigantes, sino tambien por la densidad de sus piezas intermedias.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20de%20San%20Martin%20Segovia" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismodesegovia.com/es/monumentos/edificios-religiosos/iglesias/7-iglesia-de-san-martin" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Leo: Aqui viene la sorpresa para quienes piensan que Segovia es solo Acueducto y Alcazar.
-Nora: San Martin es puro romanico castellano: triple atrio, tres absides, torre mudejar y detalles escultoricos por todas partes.
-Leo: No tenemos en la fuente oficial un arquitecto concreto con nombre y apellido, pero si una idea clarisima de su importancia.
-Nora: Esta iglesia demuestra que Segovia no vive solo de dos monumentos enormes. Vive tambien de una red de edificios que sostienen toda su identidad.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="segovia-stop-5" data-guide="La Casa de los Picos es la parada perfecta para demostrar que una fachada puede comportarse como una declaracion de guerra visual. Esta en el quiebro mas pronunciado de la Calle Real y su imagen no es amable: es afilada, tensa, casi defensiva. La fuente oficial explica que en el siglo XV la propiedad fue de Pero Lopez de Ayala y de Isabel de Silva, y que hacia 1500 paso al regidor Juan de la Hoz, momento en que se reformo el edificio y se anadio la famosa fachada de puntas de diamante. Eso importa mucho porque la tradicion popular contaba que la casa habia tenido otra identidad anterior y que el nuevo propietario la cambio para siempre cubriendola de picos. Es una historia muy buena porque ensena algo real: la arquitectura no solo protege o decora; tambien puede borrar, imponer y renombrar." data-podcast="Nora: Esta casa tiene una mision clarisima: que nadie pase por delante sin mirarla. || Leo: Y lo consigue con una fachada de comienzos del siglo XVI llena de puntas de diamante, mucho mas agresiva de lo que esperarias en una vivienda. || Nora: Sabemos que fue de Pero Lopez de Ayala e Isabel de Silva y que, hacia 1500, el regidor Juan de la Hoz reformo el edificio y fijo aqui sus casas principales. || Leo: La mejor parte es que una reforma de fachada acabo cambiando la memoria del edificio entero. Arquitectura con poder de rebautizar.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 5</span>
-              <span class="pill">Casa de los Picos</span>
-            </div>
-            <h3>Casa de los Picos</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>En el siglo XV pertenecio a Pero Lopez de Ayala e Isabel de Silva. Hacia 1500 paso al regidor Juan de la Hoz, que fijo alli sus casas principales y promovio la reforma con la nueva fachada.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es uno de los emblemas civiles de Segovia y una fachada capaz de reescribir la memoria de un edificio.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>La fachada se levanto en los primeros anos del siglo XVI y parece mas cercana a una utilidad guerrera medieval que a una casa renacentista. Hoy es sede de la Escuela de Arte y Diseno.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Contad los picos visibles sin perder la paciencia. Ahi esta parte del juego.</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">La Casa de los Picos es la parada perfecta para demostrar que una fachada puede comportarse como una declaracion de guerra visual. Esta en el quiebro mas pronunciado de la Calle Real y su imagen no es amable: es afilada, tensa, casi defensiva. La fuente oficial explica que en el siglo XV la propiedad fue de Pero Lopez de Ayala y de Isabel de Silva, y que hacia 1500 paso al regidor Juan de la Hoz, momento en que se reformo el edificio y se anadio la famosa fachada de puntas de diamante. Eso importa mucho porque la tradicion popular contaba que la casa habia tenido otra identidad anterior y que el nuevo propietario la cambio para siempre cubriendola de picos. Es una historia muy buena porque ensena algo real: la arquitectura no solo protege o decora; tambien puede borrar, imponer y renombrar.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Casa%20de%20los%20Picos%20Segovia" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismodesegovia.com/es/monumentos/edificios-militares/casa-de-los-picos-escuela-de-arte-y-superior-de-diseno" target="_blank" rel="noopener">Fuente oficial</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Nora: Esta casa tiene una mision clarisima: que nadie pase por delante sin mirarla.
-Leo: Y lo consigue con una fachada de comienzos del siglo XVI llena de puntas de diamante, mucho mas agresiva de lo que esperarias en una vivienda.
-Nora: Sabemos que fue de Pero Lopez de Ayala e Isabel de Silva y que, hacia 1500, el regidor Juan de la Hoz reformo el edificio y fijo aqui sus casas principales.
-Leo: La mejor parte es que una reforma de fachada acabo cambiando la memoria del edificio entero. Arquitectura con poder de rebautizar.</div>
-          </details>
-        </article>
-    
-
-        <article class="card" id="segovia-stop-6" data-guide="Y llega el final que siempre gana por KO visual. El Acueducto de Segovia fue construido en el siglo II d.C. y todavia hoy te obliga a levantar la cabeza con cara de esto no puede ser real. Tiene 167 arcos, bloques de granito encajados sin argamasa y llevo agua a la ciudad durante casi dos mil anos. Eso ya seria suficiente para dejar a cualquiera callado. Pero Segovia, ademas, decidio envolverlo en una leyenda perfecta para adolescentes: la muchacha cansada de subir agua, el pacto con el diablo y el ultimo sillar que falto antes del canto del gallo. De modo que aqui conviven dos cosas geniales a la vez. Por un lado, la precision fria de la ingenieria romana. Por otro, la imaginacion popular que se nego a aceptar que una obra tan bestial pudiera ser solo humana. Y honestamente, al verlo de cerca, se entiende bastante bien esa reaccion." data-podcast="Leo: Y aqui esta el monstruo final de la ruta. || Nora: Monstruo en el mejor sentido. Siglo II, ciento sesenta y siete arcos, bloques de granito sin argamasa y agua llegando a la ciudad durante casi dos mil anos. || Leo: Lo normal era que la gente pensara: esto no lo ha hecho una persona normal. Y por eso nace la leyenda del diablillo y el ultimo sillar que falto antes del canto del gallo. || Nora: Ingenieria romana arriba. Imaginacion popular alrededor. Resultado: uno de los finales de ruta mas dificiles de superar.">
-          <div class="card-top">
-            <div class="meta">
-              <span class="pill">Parada 6</span>
-              <span class="pill">Acueducto de Segovia</span>
-            </div>
-            <h3>Acueducto de Segovia</h3>
-          </div>
-          <div class="facts"><div class="fact"><strong>Quien estuvo o lo impulso</strong><span>No conocemos aqui un ingeniero con nombre en la fuente consultada, pero si que es una obra romana del siglo II d.C.</span></div>
-<div class="fact"><strong>Por que importa</strong><span>Es el emblema de Segovia y una de las mayores obras de ingenieria romana en Espana.</span></div>
-<div class="fact"><strong>Curiosidad</strong><span>Tiene 167 arcos de granito, bloques unidos sin argamasa y transporto agua durante casi dos mil anos. La ciudad tambien conserva la leyenda del diablillo.</span></div>
-<div class="fact"><strong>Reto para enganchar</strong><span>Mirad arriba y preguntad lo obvio: como sigue ahi sin mortero?</span></div></div>
-          <div class="story-wrap">
-            <div class="story-label">Relato guia</div>
-            <p class="story">Y llega el final que siempre gana por KO visual. El Acueducto de Segovia fue construido en el siglo II d.C. y todavia hoy te obliga a levantar la cabeza con cara de esto no puede ser real. Tiene 167 arcos, bloques de granito encajados sin argamasa y llevo agua a la ciudad durante casi dos mil anos. Eso ya seria suficiente para dejar a cualquiera callado. Pero Segovia, ademas, decidio envolverlo en una leyenda perfecta para adolescentes: la muchacha cansada de subir agua, el pacto con el diablo y el ultimo sillar que falto antes del canto del gallo. De modo que aqui conviven dos cosas geniales a la vez. Por un lado, la precision fria de la ingenieria romana. Por otro, la imaginacion popular que se nego a aceptar que una obra tan bestial pudiera ser solo humana. Y honestamente, al verlo de cerca, se entiende bastante bien esa reaccion.</p>
-          </div>
-          <div class="actions">
-            <button class="btn-solid" onclick="playCard(this, 'guide')">Escuchar</button>
-            <button class="btn-dark" onclick="playCard(this, 'podcast')">Podcast</button>
-            <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&amp;query=Acueducto%20de%20Segovia%20Plaza%20del%20Azoguejo" target="_blank" rel="noopener">Google Maps</a>
-          </div>
-          <div class="sources"><a class="btn btn-ghost" href="https://www.turismodesegovia.com/es/acueducto" target="_blank" rel="noopener">Fuente oficial · historia</a>
-<a class="btn btn-ghost" href="https://www.turismodesegovia.com/es/acueducto/leyenda" target="_blank" rel="noopener">Fuente oficial · leyenda</a></div>
-          <details>
-            <summary>Ver guion podcast de esta parada</summary>
-            <div class="mono">Leo: Y aqui esta el monstruo final de la ruta.
-Nora: Monstruo en el mejor sentido. Siglo II, ciento sesenta y siete arcos, bloques de granito sin argamasa y agua llegando a la ciudad durante casi dos mil anos.
-Leo: Lo normal era que la gente pensara: esto no lo ha hecho una persona normal. Y por eso nace la leyenda del diablillo y el ultimo sillar que falto antes del canto del gallo.
-Nora: Ingenieria romana arriba. Imaginacion popular alrededor. Resultado: uno de los finales de ruta mas dificiles de superar.</div>
-          </details>
-        </article>
-    </div>
-    </section>
-    
-    <section class="footer">
-      <div class="panel">
-        <h2>Audio mas pro: que haria yo</h2>
-        <div class="tools-grid">
-          <div class="panel" style="background:rgba(255,255,255,.03)">
-            <h3>Opcion rapida</h3>
-            <p>Usa este mismo HTML durante la visita. No dependes de subir nada a otra plataforma y cada parada ya tiene Maps, relato y fuente oficial.</p>
-          </div>
-          <div class="panel" style="background:rgba(255,255,255,.03)">
-            <h3>Opcion mas bonita</h3>
-            <p>Si quieres un audio tipo podcast con mejor entonacion, pega los prompts de arriba en NotebookLM o en ElevenLabs junto con este guion. El texto ya esta preparado para adolescentes y ordenado por escenas.</p>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <h2>Nota de rigor</h2>
-        <small>Este archivo no incluye MP3 pregrabados. El audio sale de la sintesis de voz del navegador o del movil. Eso permite usarlo inmediatamente, pero la calidad final depende del dispositivo. Para mantener el contenido limpio, cuando la fuente oficial consultada no identifica con claridad un autor o promotor individual, aqui se dice explicitamente en lugar de rellenar huecos.</small>
-      </div>
-    </section>
-  </main>
   <script>
-    const notebooklmPrompt = "Sube este guion y genera un resumen de audio en espanol con estas instrucciones: dos presentadores, tono cinematografico y juvenil para oyentes de 13 a 15 anos, ritmo agil, frases claras, un pequeno cliffhanger al final de cada parada y cero invenciones. Usa solo la informacion del documento. Cuando el documento si identifique a quien impulso, construyo o habito el lugar, dilo con naturalidad; cuando no lo identifique, dilo tambien sin rellenar huecos. Estructura: introduccion breve, Toledo parada a parada, transicion, Segovia parada a parada y cierre con dos o tres preguntas que dejen con ganas de viajar.";
-    const elevenlabsPrompt = "Crea una pieza de audio en espanol tipo podcast de viaje para jovenes de 13 a 15 anos. Reparte el guion entre dos voces: Presentadora 1 con tono intrigante y Presentador 2 con tono energico. Manten rigor historico absoluto. Anade musica ambiente muy ligera y efectos suaves de transicion entre paradas, sin tapar la voz. Duracion objetivo: 12 a 16 minutos. Cada parada debe sonar como una mini escena: apertura fuerte, dato historico clave, una curiosidad memorable y una frase final que empuje a seguir escuchando.";
-    const introMap = {"toledo": "Toledo no se visita: se descifra. Aqui casi ningun lugar pertenece a una sola epoca. En unas horas pasas del gran balcon sobre el Tajo al poder del Alcazar, del gotico de la Catedral a una iglesia con leyenda, a una sinagoga convertida en iglesia y a una mezquita transformada en templo cristiano. Es una ciudad hecha de capas, y ese es justamente su truco.", "segovia": "Segovia entra por los ojos muy rapido, pero se entiende mejor si la lees como una mezcla rarisima de cuento, guerra, religion e ingenieria. Empiezas con la foto mas famosa del Alcazar, sigues por un palacio que fue residencia de reyes, prision y colegio militar, te plantas ante una catedral nacida despues de un conflicto, atraviesas romanico puro y terminas debajo de una obra romana que siguio llevando agua durante siglos."};
-    const podcastIntroMap = {"toledo": ["Nora: Bienvenidos a Toledo, la ciudad que parece una fortaleza salida de una pelicula, pero donde cada piedra tiene una vida anterior.", "Leo: Hoy no vamos a caminar sin rumbo. Vamos a leer la ciudad como si fuera un misterio: primero la vista total, luego el poder, luego la fe, luego los giros de guion entre culturas.", "Nora: Si algo te suena imposible, espera. En Toledo lo raro es precisamente que todo encaje."], "segovia": ["Leo: Segovia parece una ciudad de fantasia hasta que te das cuenta de que todo aqui fue muy real: reyes, guerras, incendios, ingenieros romanos y leyendas con el diablo.", "Nora: La ruta de hoy tiene de todo: un mirador de postal, un Alcazar que parece imposible, una catedral levantada despues de una crisis brutal y un Acueducto que sigue humillando a la arquitectura moderna.", "Leo: Preparados. Porque Segovia no va solo de mirar arriba. Va de entender por que sigue impresionando tantisimo."]};
-    let voices = [];
-    let queue = [];
-    function showDay(id, btn) {
-      document.querySelectorAll('.day').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      if (btn) btn.classList.add('active');
-      stopSpeech();
+    const CONTENT = JSON.parse(document.getElementById('content-data').textContent);
+    const STOPS = CONTENT.stops;
+    const CITIES = CONTENT.cities;
+
+    function parseEmbeddedAudio() {
+      const raw = document.getElementById('embeddedAudioData').textContent.trim();
+      if (!raw) return {};
+      try {
+        return JSON.parse(raw);
+      } catch (err) {
+        console.warn('No se pudo leer el audio embebido', err);
+        return {};
+      }
     }
-    function updateRate() {
-      document.getElementById('rateValue').textContent = Number(document.getElementById('rate').value).toFixed(2) + 'x';
+
+    let audioBundle = parseEmbeddedAudio();
+
+    const state = {
+      admin: new URLSearchParams(window.location.search).get('admin') === '1' || window.location.hash === '#admin'
+    };
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
-    document.getElementById('rate').addEventListener('input', updateRate);
-    updateRate();
-    function loadVoices() {
-      voices = speechSynthesis.getVoices().filter(v => (v.lang || '').toLowerCase().startsWith('es'));
-      if (!voices.length) voices = speechSynthesis.getVoices();
-      const a = document.getElementById('voiceA');
-      const b = document.getElementById('voiceB');
-      const currentA = a.value;
-      const currentB = b.value;
-      a.innerHTML = ''; b.innerHTML = '';
-      voices.forEach((voice, idx) => {
-        const label = `${voice.name} · ${voice.lang}`;
-        const oa = document.createElement('option'); oa.value = idx; oa.textContent = label; a.appendChild(oa);
-        const ob = document.createElement('option'); ob.value = idx; ob.textContent = label; b.appendChild(ob);
+
+    function render() {
+      const app = document.getElementById('app');
+      app.innerHTML = CITIES.map(city => renderCity(city)).join('');
+      document.body.classList.toggle('admin-visible', state.admin);
+      bindInteractions();
+      refreshAudioUi();
+      refreshToolbarCount();
+    }
+
+    function renderCity(city) {
+      const cityStops = STOPS.filter(stop => stop.city === city.id);
+      const summaryItems = [
+        ['Truco de lectura', city.id === 'toledo' ? 'Primero panorama. Luego poder, religión, judería y último cambio de civilización en pequeño formato.' : 'Primero la foto del cuento. Luego la biografía real: reyes, guerra urbana, románico y la ingeniería romana final.'],
+        ['Mejor momento visual', city.id === 'toledo' ? 'Mirador del Valle al principio o al final, cuando ya reconoces Alcázar y Catedral en el perfil.' : 'Pradera de San Marcos para la silueta del Alcázar y Acueducto para el cierre con impacto.']
+      ];
+
+      return `
+        <section class="city" id="${escapeHtml(city.id)}">
+          <div class="city-header">
+            <div class="city-panel">
+              <div class="city-kicker">${escapeHtml(city.day)}</div>
+              <h2 class="city-title">${escapeHtml(city.title)}</h2>
+              <p class="city-subtitle">${escapeHtml(city.subtitle)}</p>
+              <p class="city-intro">${escapeHtml(city.intro)}</p>
+            </div>
+            <div class="city-summary">
+              ${summaryItems.map(item => `
+                <div class="summary-box">
+                  <div class="summary-label">${escapeHtml(item[0])}</div>
+                  <p class="summary-text">${escapeHtml(item[1])}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="stops">
+            ${cityStops.map(stop => renderStop(stop)).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderStop(stop) {
+      const storyHtml = stop.story.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+      const links = [
+        `<a class="map-link" href="${escapeHtml(stop.maps)}" target="_blank" rel="noreferrer">Google Maps</a>`,
+        ...stop.sources.map(src => `<a class="source-link" href="${escapeHtml(src.url)}" target="_blank" rel="noreferrer">${escapeHtml(src.label)}</a>`),
+        `<button class="copy-button" type="button" data-copy-script="${escapeHtml(stop.id)}">Copiar guion</button>`
+      ].join('');
+
+      return `
+        <article class="card" id="${escapeHtml(stop.id)}" data-stop-card="${escapeHtml(stop.id)}">
+          <div class="card-head">
+            <div>
+              <div class="stop-index">Parada ${stop.order}</div>
+              <h3 class="stop-title">${escapeHtml(stop.title)}</h3>
+            </div>
+            <div class="stop-status empty" id="status-${escapeHtml(stop.id)}">Audio pendiente</div>
+          </div>
+
+          <div class="audio-box">
+            <audio id="audio-${escapeHtml(stop.id)}" controls preload="none" class="hidden"></audio>
+            <span class="audio-placeholder" id="placeholder-${escapeHtml(stop.id)}">Sin audio integrado en esta parada.</span>
+            <div class="admin-inline">
+              <label class="file-button">
+                <input type="file" accept="audio/*" data-upload-audio="${escapeHtml(stop.id)}">
+                Cargar audio
+              </label>
+              <button class="mini-button" type="button" data-clear-audio="${escapeHtml(stop.id)}">Quitar</button>
+              <span class="file-name" id="filename-${escapeHtml(stop.id)}">—</span>
+            </div>
+          </div>
+
+          <div class="link-row">${links}</div>
+
+          <div class="facts">
+            <div class="fact">
+              <div class="fact-label">Quién estuvo o lo impulsó</div>
+              <p class="fact-text">${escapeHtml(stop.who)}</p>
+            </div>
+            <div class="fact">
+              <div class="fact-label">Por qué importa</div>
+              <p class="fact-text">${escapeHtml(stop.why)}</p>
+            </div>
+            <div class="fact">
+              <div class="fact-label">Curiosidad</div>
+              <p class="fact-text">${escapeHtml(stop.curiosity)}</p>
+            </div>
+            <div class="fact">
+              <div class="fact-label">Fíjate en esto</div>
+              <p class="fact-text">${escapeHtml(stop.challenge)}</p>
+            </div>
+          </div>
+
+          <div class="story">${storyHtml}</div>
+        </article>
+      `;
+    }
+
+    function bindInteractions() {
+      document.querySelectorAll('[data-copy-script]').forEach(btn => {
+        btn.addEventListener('click', () => copyScript(btn));
       });
-      if (voices.length) {
-        a.value = currentA || 0;
-        b.value = currentB || (voices.length > 1 ? 1 : 0);
-      }
+
+      document.querySelectorAll('[data-upload-audio]').forEach(input => {
+        input.addEventListener('change', event => handleAudioUpload(event));
+      });
+
+      document.querySelectorAll('[data-clear-audio]').forEach(btn => {
+        btn.addEventListener('click', () => clearAudio(btn.dataset.clearAudio));
+      });
+
+      document.querySelectorAll('audio').forEach(player => {
+        player.addEventListener('play', () => pauseOtherPlayers(player.id));
+      });
+
+      document.getElementById('exportHtmlBtn').addEventListener('click', exportSelfContainedHtml);
+      document.getElementById('downloadScriptsBtn').addEventListener('click', downloadScriptsTxt);
+      document.getElementById('clearAllBtn').addEventListener('click', clearAllAudio);
+      document.getElementById('hideAdminBtn').addEventListener('click', () => toggleAdmin(false));
     }
-    loadVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-    function stopSpeech() {
-      speechSynthesis.cancel();
-      queue = [];
-      document.querySelectorAll('.card').forEach(c => c.classList.remove('current'));
-    }
-    function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        document.getElementById('copyStatus').textContent = 'Texto copiado.';
-        setTimeout(() => { document.getElementById('copyStatus').textContent = ''; }, 1800);
-      }).catch(() => {
-        document.getElementById('copyStatus').textContent = 'No se pudo copiar automaticamente.';
+
+    function pauseOtherPlayers(activeId) {
+      document.querySelectorAll('audio').forEach(player => {
+        if (player.id !== activeId) player.pause();
       });
     }
-    function getSelectedVoice(which) {
-      const idx = Number(document.getElementById(which).value || 0);
-      return voices[idx] || null;
-    }
-    function speakSegments(segments, cardEl) {
-      stopSpeech();
-      if (cardEl) {
-        cardEl.classList.add('current');
-        cardEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+    async function copyScript(button) {
+      const stop = STOPS.find(item => item.id === button.dataset.copyScript);
+      if (!stop) return;
+      const text = stop.audioScript;
+      try {
+        await navigator.clipboard.writeText(text);
+        markCopied(button);
+      } catch (err) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+        markCopied(button);
       }
-      const rate = parseFloat(document.getElementById('rate').value || 1);
-      queue = segments.slice();
-      const voiceA = getSelectedVoice('voiceA');
-      const voiceB = getSelectedVoice('voiceB');
-      function next() {
-        if (!queue.length) return;
-        const item = queue.shift();
-        const utter = new SpeechSynthesisUtterance(item.text);
-        utter.lang = (item.voice === 'B' && voiceB ? voiceB.lang : (voiceA ? voiceA.lang : 'es-ES')) || 'es-ES';
-        utter.rate = rate;
-        utter.pitch = item.voice === 'B' ? 1.02 : 1.0;
-        utter.volume = 1;
-        utter.voice = item.voice === 'B' ? (voiceB || voiceA) : (voiceA || voiceB);
-        utter.onend = next;
-        utter.onerror = next;
-        speechSynthesis.speak(utter);
-      }
-      next();
     }
-    function playCard(button, mode) {
-      const card = button.closest('.card');
-      let segments = [];
-      if (mode === 'guide') {
-        const title = card.querySelector('h3').textContent.trim();
-        segments = [{voice:'A', text: title + '. ' + card.dataset.guide}];
-      } else {
-        segments = card.dataset.podcast.split(' || ').map((t, i) => ({voice: i % 2 === 0 ? 'A' : 'B', text: t}));
-      }
-      speakSegments(segments, card);
+
+    function markCopied(button) {
+      const original = button.textContent;
+      button.textContent = 'Copiado';
+      button.classList.add('done');
+      window.setTimeout(() => {
+        button.textContent = original;
+        button.classList.remove('done');
+      }, 1400);
     }
-    function playDay(dayId, mode) {
-      stopSpeech();
-      const day = document.getElementById(dayId);
-      const cards = Array.from(day.querySelectorAll('.card[data-guide]'));
-      if (!cards.length) return;
-      const segments = [];
-      if (mode === 'guide') {
-        segments.push({voice:'A', text:introMap[dayId]});
-        cards.forEach(card => {
-          const title = card.querySelector('h3').textContent.trim();
-          segments.push({voice:'A', text:title + '. ' + card.dataset.guide});
-        });
-      } else {
-        (podcastIntroMap[dayId] || []).forEach((txt, i) => segments.push({voice: i % 2 === 0 ? 'A' : 'B', text: txt}));
-        cards.forEach(card => {
-          card.dataset.podcast.split(' || ').forEach((txt, i) => segments.push({voice: i % 2 === 0 ? 'A' : 'B', text: txt}));
-        });
-      }
-      speakSegments(segments, cards[0]);
+
+    function handleAudioUpload(event) {
+      const input = event.target;
+      const stopId = input.dataset.uploadAudio;
+      const file = input.files && input.files[0];
+      if (!file || !stopId) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        audioBundle[stopId] = {
+          filename: file.name,
+          mime: file.type || 'audio/mpeg',
+          dataUrl: reader.result
+        };
+        refreshAudioUi();
+        refreshToolbarCount();
+      };
+      reader.readAsDataURL(file);
     }
+
+    function clearAudio(stopId) {
+      delete audioBundle[stopId];
+      const input = document.querySelector(`[data-upload-audio="${CSS.escape(stopId)}"]`);
+      if (input) input.value = '';
+      refreshAudioUi();
+      refreshToolbarCount();
+    }
+
+    function clearAllAudio() {
+      audioBundle = {};
+      document.querySelectorAll('[data-upload-audio]').forEach(input => input.value = '');
+      refreshAudioUi();
+      refreshToolbarCount();
+    }
+
+    function refreshAudioUi() {
+      STOPS.forEach(stop => {
+        const bundle = audioBundle[stop.id];
+        const audio = document.getElementById(`audio-${stop.id}`);
+        const placeholder = document.getElementById(`placeholder-${stop.id}`);
+        const status = document.getElementById(`status-${stop.id}`);
+        const filename = document.getElementById(`filename-${stop.id}`);
+
+        if (bundle && bundle.dataUrl) {
+          if (audio.src !== bundle.dataUrl) audio.src = bundle.dataUrl;
+          audio.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+          status.textContent = 'Audio integrado';
+          status.classList.remove('empty');
+          status.classList.add('loaded');
+          if (filename) filename.textContent = bundle.filename || 'audio';
+        } else {
+          if (audio.src) {
+            audio.pause();
+            audio.removeAttribute('src');
+            audio.load();
+          }
+          audio.classList.add('hidden');
+          placeholder.classList.remove('hidden');
+          status.textContent = 'Audio pendiente';
+          status.classList.remove('loaded');
+          status.classList.add('empty');
+          if (filename) filename.textContent = '—';
+        }
+      });
+    }
+
+    function refreshToolbarCount() {
+      const loaded = STOPS.filter(stop => audioBundle[stop.id] && audioBundle[stop.id].dataUrl).length;
+      document.getElementById('toolbarCount').textContent = `${loaded} / ${STOPS.length}`;
+    }
+
+    function toggleAdmin(forceValue) {
+      state.admin = typeof forceValue === 'boolean' ? forceValue : !state.admin;
+      document.body.classList.toggle('admin-visible', state.admin);
+      if (state.admin) {
+        history.replaceState(null, '', window.location.pathname + window.location.search + '#admin');
+      } else if (window.location.hash === '#admin') {
+        history.replaceState(null, '', window.location.pathname + window.location.search.replace(/([?&])admin=1&?/, '$1').replace(/[?&]$/, ''));
+      }
+    }
+
+    function downloadScriptsTxt() {
+      const blocks = STOPS.map(stop => `# ${stop.title}\n\n${stop.audioScript}`).join('\n\n------------------------------\n\n');
+      downloadBlob(blocks, 'guiones_elevenlabs_toledo_segovia.txt', 'text/plain;charset=utf-8');
+    }
+
+    function buildExportHtml() {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('audio').forEach(audio => {
+        audio.pause && audio.pause();
+        audio.removeAttribute('src');
+        audio.classList.add('hidden');
+      });
+      clone.querySelectorAll('[id^="placeholder-"]').forEach(el => el.classList.remove('hidden'));
+      clone.body.classList.remove('admin-visible');
+      const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+      const json = JSON.stringify(audioBundle).replace(/</g, '\u003c');
+      return html.replace(/(<script id="embeddedAudioData" type="application\/json">)([\s\S]*?)(<\/script>)/, `$1${json}$3`);
+    }
+
+    function exportSelfContainedHtml() {
+      const finalHtml = buildExportHtml();
+      downloadBlob(finalHtml, 'guia_toledo_segovia_elevenlabs_unico.html', 'text/html;charset=utf-8');
+    }
+
+    function downloadBlob(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 500);
+    }
+
+    window.addEventListener('keydown', event => {
+      if (event.shiftKey && event.key.toLowerCase() === 'a') {
+        event.preventDefault();
+        toggleAdmin();
+      }
+    });
+
+    render();
   </script>
 </body>
 </html>
